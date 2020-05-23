@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    class Tank
+    public class Tank
     {
         public static int GO_UP = 1;
         public static int GO_DOWN = -1;

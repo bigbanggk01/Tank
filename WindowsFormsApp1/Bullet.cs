@@ -11,9 +11,8 @@ namespace WindowsFormsApp1
     /// <summary>
     /// Class viên đạn
     /// </summary>
-    class Bullet
+    public class Bullet
     {
-
         public int bulletX;
         public int bulletY;
         private int bulletDirection; 

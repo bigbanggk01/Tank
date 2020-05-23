@@ -19,46 +19,62 @@ namespace WindowsFormsApp1
             this.Location = new Point(0, 0);
             this.Size = Screen.PrimaryScreen.WorkingArea.Size;
             networker= new Network();
+            networker.GetForm(this);
+            networker.GetMap(map);
         }
         Network networker;
-        Tank tank = new Tank();
+        public Tank tank1 = new Tank();
+        public Tank tank2 = new Tank();
         Cons back_ground = new Cons();
         Timer t = new Timer();
         Map map = new Map();
+        
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this);
-            tank.Draw(this);
+            tank1.Draw(this);
+            tank2.x[0] = 10 + 60;
+            tank2.y[0] = 10 + 30;
+            tank2.x[1] = 9 + 60;
+            tank2.y[1] = 11 + 30;
+            tank2.x[2] = 10 + 60;
+            tank2.y[2] = 11 + 30;
+            tank2.x[3] = 11 + 60;
+            tank2.y[3] = 11 + 30;
+            tank2.x[4] = 9 + 60;
+            tank2.y[4] = 12 + 30;
+            tank2.x[5] = 11 + 60;
+            tank2.y[5] = 12 + 30;
+            tank2.Draw(this);
             map.Draw(this);
         }
 
-        
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Up)
             {
-                tank.Go_Up(this, map);
+                networker.myTank.Go_Up(this, map);
                 networker.Send("1");
             }
             if (e.KeyCode == Keys.Down)
             {
-                tank.Go_Down(this,map );
+                networker.myTank.Go_Down(this,map );
                 networker.Send("2");
             }
             if (e.KeyCode == Keys.Right)
             {
-                tank.Go_Right(this,map);
+                networker.myTank.Go_Right(this,map);
                 networker.Send("3");
             }
             if (e.KeyCode == Keys.Left)
             {
-                tank.Go_Left(this,map);
+                networker.myTank.Go_Left(this,map);
                 networker.Send("4");
             }
             if(e.KeyCode == Keys.Space) 
             {
-                tank.Shot(this);
-                Bullet b = new Bullet(tank, this);
+                networker.myTank.Shot(this);
+                Bullet b = new Bullet(tank1, this);
                 
                 b.fly(this);
                 networker.Send("5");
@@ -102,9 +118,6 @@ namespace WindowsFormsApp1
             this.Controls.Add(SignOut);
             this.Controls.Add(Tank_Buy);
             this.Controls.Add(ChatBox);
-
-            networker.GetForm(this);
-            networker.GetMap(map);
         }    
       
     }

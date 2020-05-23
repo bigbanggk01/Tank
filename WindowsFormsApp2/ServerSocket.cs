@@ -112,6 +112,7 @@ namespace WindowsFormsApp2
                     this.Send("1", _clientList[b[1]]);
                     _clientList[b[1]] = null;
                 }
+                
             }
             port++;
             //try

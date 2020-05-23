@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    class Map
+    public class Map
     {
         public int[,] Bit_map= new int[80,80];
         private Pen p;

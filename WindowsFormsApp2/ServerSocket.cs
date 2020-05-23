@@ -22,6 +22,7 @@ namespace WindowsFormsApp2
         string _currentData;
         public List<Socket> _clientList;
         public const int _buffer = 1024;
+        int port=11001;
         public bool Start()
         {
             _clientList = new List<Socket>();
@@ -38,7 +39,7 @@ namespace WindowsFormsApp2
                         _server.Listen(2);
                         Socket client = _server.Accept();
                         _clientList.Add(client);
-                        
+
                         Thread receive = new Thread(Receive);
                         receive.IsBackground = true;
                         receive.Start(client);
@@ -53,9 +54,9 @@ namespace WindowsFormsApp2
             listen.IsBackground = true;
             listen.Start();
             return true;
-            }
+        }
 
-        public void Send(string data_need_to_be_sent,Socket client)
+        public void Send(string data_need_to_be_sent, Socket client)
         {
             try { client.Send(Serialize(data_need_to_be_sent)); }
             catch (Exception e)
@@ -73,20 +74,20 @@ namespace WindowsFormsApp2
                 {
                     byte[] buffer = new byte[_buffer * 5];
                     client.Receive(buffer);
-                      
-                    _currentData =(string)Deserialize(buffer);
+
+                    _currentData = (string)Deserialize(buffer);
                     string data = _currentData as string;
-                    data = data +";"+ _clientList.IndexOf(client);
-                    if ((object)_currentData != null) 
+                    data = data + ";" + _clientList.IndexOf(client);
+                    if ((object)_currentData != null)
                     {
                         Thread Executor = new Thread(Execute);
                         Executor.IsBackground = true;
                         Executor.Start((object)data);
                     }
-                        
+
                 }
             }
-            catch 
+            catch
             {
                 _clientList.Remove(client);
                 client.Close();
@@ -95,50 +96,66 @@ namespace WindowsFormsApp2
 
         private void Execute(object obj)
         {
-            string s = (string)obj;
+            string s = "";
+            try { s= (string)obj; }
+            catch { };
             int[] b = s.Split(';').Select(int.Parse).ToArray();
-            try 
+            if (b[0] == 0)
             {
-                if (b[0] == 0)
+                if (b[1] % 2 == 0)
                 {
-                    foreach (Socket client in this._clientList)
-                    {
-                        if (b[1] == _clientList.IndexOf(client))
-                        { 
-                            this.Send("0;0"+";"+_clientList.IndexOf(client), client); 
-                        }
-                        else
-                        {
-                            this.Send("6;"+ _clientList.IndexOf(client), client);
-                            this.Send("7;" + _clientList.IndexOf(client), client);
-                        }
-                    }
+                    this.Send("2", _clientList[b[1]]);
+                    _clientList[b[1]] = null;
                 }
-                
-                else
+                if (b[1] % 2 != 0)
                 {
-                    if (b[0] == 8)
-                    {
-                        foreach (Socket item in this._clientList)
-                        {
-                            if(b[5] != _clientList.IndexOf(item)) 
-                            {
-                                this.Send("8" + ";" + _clientList.IndexOf(item) + ";" + b[1] + ";" + b[2] + ";" + b[3], item); 
-                            }
-                        }
-                    }
-                    else 
-                    {
-                        foreach (Socket client in this._clientList)
-                        {
-                            this.Send((string)obj, client);
-                        }
-                    }
-                    
+                    this.Send("1", _clientList[b[1]]);
+                    _clientList[b[1]] = null;
                 }
-                
             }
-            catch { }
+            port++;
+            //try
+            //{
+            //    if (b[0] == 0)
+            //    {
+            //        foreach (Socket client in this._clientList)
+            //        {
+            //            if (b[1] == _clientList.IndexOf(client))
+            //            {
+            //                this.Send("0;0" + ";" + _clientList.IndexOf(client), client);
+            //            }
+            //            else
+            //            {
+            //                this.Send("6;" + _clientList.IndexOf(client), client);
+            //                this.Send("7;" + _clientList.IndexOf(client), client);
+            //            }
+            //        }
+            //    }
+
+            //    else
+            //    {
+            //        if (b[0] == 8)
+            //        {
+            //            foreach (Socket item in this._clientList)
+            //            {
+            //                if (b[5] != _clientList.IndexOf(item))
+            //                {
+            //                    this.Send("8" + ";" + _clientList.IndexOf(item) + ";" + b[1] + ";" + b[2] + ";" + b[3], item);
+            //                }
+            //            }
+            //        }
+            //        else
+            //        {
+            //            foreach (Socket client in this._clientList)
+            //            {
+            //                this.Send((string)obj, client);
+            //            }
+            //        }
+
+            //    }
+
+            //}
+            //catch { }
         }
 
         byte[] Serialize(object o)
@@ -174,6 +191,6 @@ namespace WindowsFormsApp2
             }
             return output;
         }
-        
+
     }
 }

@@ -18,8 +18,9 @@ namespace WindowsFormsApp1
             //tạo form full màn hình 
             this.Location = new Point(0, 0);
             this.Size = Screen.PrimaryScreen.WorkingArea.Size;
+            networker= new Network();
         }
-       
+        Network networker;
         Tank tank = new Tank();
         Cons back_ground = new Cons();
         Timer t = new Timer();
@@ -36,19 +37,23 @@ namespace WindowsFormsApp1
         {
             if (e.KeyCode == Keys.Up)
             {
-                tank.Go_Up(this,map);
+                tank.Go_Up(this, map);
+                networker.Send("1");
             }
             if (e.KeyCode == Keys.Down)
             {
                 tank.Go_Down(this,map );
+                networker.Send("2");
             }
             if (e.KeyCode == Keys.Right)
             {
                 tank.Go_Right(this,map);
+                networker.Send("3");
             }
             if (e.KeyCode == Keys.Left)
             {
                 tank.Go_Left(this,map);
+                networker.Send("4");
             }
             if(e.KeyCode == Keys.Space) 
             {
@@ -56,11 +61,20 @@ namespace WindowsFormsApp1
                 Bullet b = new Bullet(tank, this);
                 
                 b.fly(this);
+                networker.Send("5");
             }
         }
         
         private void Form1_Load(object sender, EventArgs e)
         {
+            if (networker.Start() == false)
+            {
+                this.Close();
+            }
+            else
+            {
+                networker.Send("0");
+            }
             Label ChatBox = new Label();
             ChatBox.Location = new Point(this.Width - 290, 0);
             ChatBox.Size = new Size(300, Height - 500);
@@ -89,6 +103,8 @@ namespace WindowsFormsApp1
             this.Controls.Add(Tank_Buy);
             this.Controls.Add(ChatBox);
 
+            networker.GetForm(this);
+            networker.GetMap(map);
         }    
       
     }

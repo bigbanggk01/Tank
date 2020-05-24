@@ -15,13 +15,44 @@ namespace WindowsFormsApp1
         public EndingForm2()
         {
             InitializeComponent();
+            label2.Hide();
+            textBox1.Hide();
+            button3.Hide();
+            button4.Hide();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            BuyTankForm bTF = new BuyTankForm();
-            bTF.Show();
-            this.Dispose();
+            label2.Show();
+            textBox1.Show();
+            button3.Show();
+            button4.Show();
+
+            label1.Hide();
+            button1.Hide();
+            button2.Hide();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            label2.Hide();
+            textBox1.Hide();
+            button3.Hide();
+            button4.Hide();
+
+            label1.Show();
+            button1.Show();
+            button2.Show();
+        }
+        Form1 form;
+        public void Get(Form1 f)
+        {
+            form = f;
+        }
+        private void button2_Click(object sender, EventArgs e)
+        {
+            form.Close();
+            Close();
         }
     }
 }

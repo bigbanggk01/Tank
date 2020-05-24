@@ -16,10 +16,15 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
         }
-
+        Form1 form;
+        public void Get(Form1 f)
+        {
+            form = f;
+        }
         private void button2_Click(object sender, EventArgs e)
         {
-
+            form.Close();
+            Close();
         }
 
         private void button1_Click(object sender, EventArgs e)

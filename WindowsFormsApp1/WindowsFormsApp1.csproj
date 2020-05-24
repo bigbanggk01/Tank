@@ -48,12 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bullet.cs" />
-    <Compile Include="BuyTankForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BuyTankForm.Designer.cs">
-      <DependentUpon>BuyTankForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Cons.cs" />
     <Compile Include="EndingForm.cs">
       <SubType>Form</SubType>
@@ -85,9 +79,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tank.cs" />
     <Compile Include="Utils.cs" />
-    <EmbeddedResource Include="BuyTankForm.resx">
-      <DependentUpon>BuyTankForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="EndingForm.resx">
       <DependentUpon>EndingForm.cs</DependentUpon>
     </EmbeddedResource>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -243,10 +244,12 @@ namespace WindowsFormsApp1
                 if (tank1.Died == true)
                 {
                     e2.Show();
+                    e2.Get(this);
                 }
                 if (tank2.Died == true)
                 {
                     e.Show();
+                    e.Get(this);
                 }
             }
             if (networker._identification == 1)
@@ -254,10 +257,12 @@ namespace WindowsFormsApp1
                 if (tank1.Died == true)
                 {
                     e.Show();
+                    e.Get(this);
                 }
                 if (tank2.Died == true)
                 {
                     e2.Show();
+                    e2.Get(this);
                 }
             }
         }

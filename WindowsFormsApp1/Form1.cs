@@ -22,7 +22,12 @@ namespace WindowsFormsApp1
             this.Size = Screen.PrimaryScreen.WorkingArea.Size;
             networker= new Network();
             networker.GetForm(this);
+            this.WindowState = FormWindowState.Minimized;
+            this.ShowInTaskbar = false;
+            LoginForm.Show();
+            LoginForm.GetForm(this);
         }
+
         public Network networker;
         public Tank tank1 = new Tank();
         public Tank tank2 = new Tank();
@@ -31,6 +36,7 @@ namespace WindowsFormsApp1
         public Map map = new Map();
         EndingForm e = new EndingForm();
         EndingForm2 e2 = new EndingForm2();
+        LoginForm LoginForm = new LoginForm();
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this);
@@ -131,7 +137,7 @@ namespace WindowsFormsApp1
             }
             else
             {
-                networker.Send("0");
+                //networker.Send("0");
             }
             Label ChatBox = new Label();
             ChatBox.Location = new Point(this.Width - 290, 0);
@@ -160,9 +166,12 @@ namespace WindowsFormsApp1
             this.Controls.Add(SignOut);
             this.Controls.Add(Tank_Buy);
             this.Controls.Add(ChatBox);
-
-            
+            this.Hide();
         }    
+        public void GetForm(LoginForm lf)
+        {
+            LoginForm = lf;
+        }
         /// <summary>
         /// Cập nhật tình trạng xe của đối thủ, hành động của đối thủ
         /// </summary>

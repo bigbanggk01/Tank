@@ -13,7 +13,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Reflection.Emit;
 using System.Security.Cryptography;
-
+using System.Data.Sql;
+using System.Data.SqlClient;
+using System.Data;
 namespace WindowsFormsApp2
 {
     class ServerSocket
@@ -74,12 +76,36 @@ namespace WindowsFormsApp2
 
                     _currentData = (string)Deserialize(buffer);
                     string data = _currentData as string;
-                    data = data + ";" + _clientList.IndexOf(client);
-                    if ((object)_currentData != null)
+                    char[] b = { ';' };
+                    Int32 count = 2;
+                    String[] strList = data.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (strList[0].Equals("Login"))
                     {
-                        Thread Executor = new Thread(Execute);
-                        Executor.IsBackground = true;
-                        Executor.Start((object)data);
+                        SqlConnection sqlcon = new SqlConnection(@"Data Source=DESKTOP-AB6F94G;Initial Catalog=TankDB;Integrated Security=True");
+                        SqlDataAdapter sda = new SqlDataAdapter(strList[1], sqlcon);
+                        DataTable dtbl = new DataTable();
+                        sda.Fill(dtbl);
+                        if (dtbl.Rows.Count == 1)
+                        {
+                            data = "0;" + _clientList.IndexOf(client);
+                            if ((object)_currentData != null)
+                            {
+                                Thread Executor = new Thread(Execute);
+                                Executor.IsBackground = true;
+                                Executor.Start((object)data);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        data = data + ";" + _clientList.IndexOf(client);
+                        if ((object)_currentData != null)
+                        {
+                            Thread Executor = new Thread(Execute);
+                            Executor.IsBackground = true;
+                            Executor.Start((object)data);
+                        }
                     }
 
                 }
@@ -96,6 +122,7 @@ namespace WindowsFormsApp2
             try { s= (string)obj; }
             catch { };
             int[] b = s.Split(';').Select(int.Parse).ToArray();
+            
             if (b[0] == 0)
             {
                 if (b[1] % 2 == 0)

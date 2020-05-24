@@ -19,6 +19,7 @@ namespace WindowsFormsApp1
         string _currentData;
         Form1 form;
         Tank enemyTank;
+        LoginForm LoginForm;
         public Tank myTank;
         public List<Socket> _peerList=new List<Socket>();
         public int _identification;
@@ -30,6 +31,10 @@ namespace WindowsFormsApp1
         public Tank GetTank(Tank t)
         {
             return  t;
+        }
+        public void GetLogin(LoginForm lg)
+        {
+            LoginForm = lg;
         }
         public bool Start()
         {
@@ -50,7 +55,6 @@ namespace WindowsFormsApp1
             
         }
 
-        
         public void Receive()
         {
             _currentData = "";
@@ -60,6 +64,14 @@ namespace WindowsFormsApp1
                 _client.Receive(buffer);
                 _currentData = (string)Deserialize(buffer);
                 string data = _currentData as string;
+                //if (data.Equals("OK"))
+                //{
+                //    Send("0");
+                //    form.WindowState= FormWindowState.Normal;
+                //}
+                //else {
+                    
+                //}
                 if ((object)_currentData != null)
                 {
                     Thread Executor = new Thread(Execute);
@@ -87,6 +99,14 @@ namespace WindowsFormsApp1
                 myTank = this.GetTank(form.tank1);
                 enemyTank = this.GetTank(form.tank2);
                 _identification = 0;
+                
+                form.Invoke((MethodInvoker)delegate
+                {
+                    form.WindowState = FormWindowState.Maximized;
+                    form.ShowInTaskbar = true;
+                    LoginForm.Hide();
+                });
+                
                 while (true)
                 {
                     _client.Listen(2);
@@ -100,12 +120,19 @@ namespace WindowsFormsApp1
             if (a == 1)
             {
                 IPEndPoint ip = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6666);
+
                 try 
                 {
                     _client.Connect(IPAddress.Parse("127.0.0.1"), b[1]);
                     enemyTank = this.GetTank(form.tank1);
                     myTank = this.GetTank(form.tank2);
                     _identification = 1;
+                    form.Invoke((MethodInvoker)delegate
+                    {
+                        form.WindowState = FormWindowState.Maximized;
+                        form.ShowInTaskbar = true;
+                        LoginForm.Hide();
+                    });
                 }
                 catch (Exception e) { MessageBox.Show(e.ToString()); };
                 this.Send("0");

@@ -113,20 +113,26 @@ namespace WindowsFormsApp1
             if (form.tank1.isTank(bulletX, bulletY) == true && isBullet == true)
             {
                 g.FillRectangle(sb, bulletX * 20 + 1, bulletY * 20 + 1, 18, 18);
-                form.tank1.Tank_damged(this);
+                //form.tank1.Tank_damged(this);
+                form.tank1.Died = true;
+                form.Game_Over();
+                isBullet = false;
+                
                 timer.Stop();
                 timer.Dispose();
-                isBullet = false;
-                form.tank1.Died = true;
+                
             }
             if (form.tank2.isTank(bulletX, bulletY) == true && isBullet == true)
             {
                 g.FillRectangle(sb, bulletX * 20 + 1, bulletY * 20 + 1, 18, 18);
-                form.tank2.Tank_damged(this);
+                //form.tank2.Tank_damged(this);
+                form.tank2.Died = true;
+                form.Game_Over();
+                isBullet = false;
+                
                 timer.Stop();
                 timer.Dispose();
-                isBullet = false;
-                form.tank2.Died = true;
+                
             }
         }
         /// <summary>

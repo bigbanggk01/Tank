@@ -10,18 +10,23 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class EndingForm2 : Form
+    public partial class BuyTankForm : Form
     {
-        public EndingForm2()
+        public BuyTankForm()
         {
             InitializeComponent();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            BuyTankForm bTF = new BuyTankForm();
-            bTF.Show();
-            this.Dispose();
+            LoginForm lF = new LoginForm();
+            lF.Show();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            EndingForm2 tf = new EndingForm2();
+            tf.Show();
         }
     }
 }

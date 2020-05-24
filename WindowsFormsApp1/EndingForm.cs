@@ -21,5 +21,19 @@ namespace WindowsFormsApp1
         {
 
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Form1 f = new Form1();
+            try { 
+            f.Show();
+            }
+            catch
+            {
+                MessageBox.Show("Can't connect");
+            }
+            this.Dispose();
+            this.Close();
+        }
     }
 }

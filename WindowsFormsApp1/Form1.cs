@@ -242,22 +242,22 @@ namespace WindowsFormsApp1
             {
                 if (tank1.Died == true)
                 {
-                    e.Show();
+                    e2.Show();
                 }
                 if (tank2.Died == true)
                 {
-                    e2.Show();
+                    e.Show();
                 }
             }
             if (networker._identification == 1)
             {
                 if (tank1.Died == true)
                 {
-                    e2.Show();
+                    e.Show();
                 }
                 if (tank2.Died == true)
                 {
-                    e.Show();
+                    e2.Show();
                 }
             }
         }

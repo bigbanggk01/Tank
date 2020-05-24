@@ -422,13 +422,13 @@ namespace WindowsFormsApp1
                 ) { return true; }
             else { return false; }
         }
-        public void Tank_damged(Bullet b)
-        {
-            if (this.isTank(b.bulletX, b.bulletY) == true)
-            {
-                form.Game_Over();
-            }
-            else return;
-        }
+        //public void Tank_damged(Bullet b)
+        //{
+        //    if (this.isTank(b.bulletX, b.bulletY) == true)
+        //    {
+        //        form.Game_Over();
+        //    }
+        //    else return;
+        //}
     }
 }

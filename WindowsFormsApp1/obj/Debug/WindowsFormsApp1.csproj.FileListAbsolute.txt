@@ -20,3 +20,5 @@ D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.exe
 D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.pdb
 D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.EndingForm.resources
 D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.EndingForm2.resources
+D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.LoginForm.resources
+D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.BuyTankForm.resources

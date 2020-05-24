@@ -20,6 +20,13 @@ namespace WindowsFormsApp1
         public int Tank_Current_Status = GO_UP;
         public int a, b;
         public int[] x, y;
+        public bool Died = false;
+
+        Form1 form;
+        public void GetForm(Form1 f)
+        {
+            form = f;
+        }
 
         SolidBrush sb = new SolidBrush(Color.White);
         public Tank()
@@ -407,6 +414,21 @@ namespace WindowsFormsApp1
             }
             g.FillRectangle((new SolidBrush(Color.Black)), a* 20 + 1, b * 20 + 1, 18, 18);
         }
-        
+        public bool isTank(int a, int b)
+        {
+            if (
+                (a == x[0] && b == y[0]) || (a == x[1] && b == y[1]) 
+                || (a == x[2] && b == y[2]) || (a == x[3] && b == y[4]) || (a == x[5] && b == y[5])
+                ) { return true; }
+            else { return false; }
+        }
+        public void Tank_damged(Bullet b)
+        {
+            if (this.isTank(b.bulletX, b.bulletY) == true)
+            {
+                form.Game_Over();
+            }
+            else return;
+        }
     }
 }

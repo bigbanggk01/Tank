@@ -100,12 +100,12 @@ namespace WindowsFormsApp2
             {
                 if (b[1] % 2 == 0)
                 {
-                    this.Send("2", _clientList[b[1]]);
+                    this.Send("2;"+port.ToString(), _clientList[b[1]]);
                     _clientList[b[1]] = null;
                 }
                 if (b[1] % 2 != 0)
                 {
-                    this.Send("1", _clientList[b[1]]);
+                    this.Send("1;"+(port-1).ToString(), _clientList[b[1]]);
                     _clientList[b[1]] = null;
                 }
             }

@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -20,19 +21,20 @@ namespace WindowsFormsApp1
             this.Size = Screen.PrimaryScreen.WorkingArea.Size;
             networker= new Network();
             networker.GetForm(this);
-            networker.GetMap(map);
         }
-        Network networker;
+        public Network networker;
         public Tank tank1 = new Tank();
         public Tank tank2 = new Tank();
         Cons back_ground = new Cons();
-        Timer t = new Timer();
-        Map map = new Map();
-        
+        System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
+        public Map map = new Map();
+        EndingForm e = new EndingForm();
+        EndingForm2 e2 = new EndingForm2();
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this);
             tank1.Draw(this);
+            tank1.GetForm(this);
             tank2.x[0] = 10 + 60;
             tank2.y[0] = 10 + 30;
             tank2.x[1] = 9 + 60;
@@ -46,9 +48,14 @@ namespace WindowsFormsApp1
             tank2.x[5] = 11 + 60;
             tank2.y[5] = 12 + 30;
             tank2.Draw(this);
+            tank2.GetForm(this);
             map.Draw(this);
         }
-
+        /// <summary>
+        /// Các nút bấm
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             if (networker._identification == 0)
@@ -78,6 +85,7 @@ namespace WindowsFormsApp1
                 {
                     tank1.Shot(this);
                     Bullet b = new Bullet(tank1, this);
+                    b.GetForm(this);
                     b.fly(this);
                     networker.Send("5", networker.client2);
                 }
@@ -94,26 +102,26 @@ namespace WindowsFormsApp1
                     tank2.Go_Down(this, map);
                     networker.Send("2");
                 }
-                if (e.KeyCode == Keys.Right)
-                {
-                    tank2.Go_Right(this, map);
-                    networker.Send("4");
-                }
                 if (e.KeyCode == Keys.Left)
                 {
                     tank2.Go_Left(this, map);
                     networker.Send("3");
                 }
+                if (e.KeyCode == Keys.Right)
+                {
+                    tank2.Go_Right(this, map);
+                    networker.Send("4");
+                }
                 if (e.KeyCode == Keys.Space)
                 {
                     tank2.Shot(this);
                     Bullet b = new Bullet(tank2, this);
+                    b.GetForm(this);
                     b.fly(this);
                     networker.Send("5");
                 }
             }
         }
-        
         private void Form1_Load(object sender, EventArgs e)
         {
             if (networker.Start() == false)
@@ -151,7 +159,13 @@ namespace WindowsFormsApp1
             this.Controls.Add(SignOut);
             this.Controls.Add(Tank_Buy);
             this.Controls.Add(ChatBox);
+
+            
         }    
+        /// <summary>
+        /// Cập nhật tình trạng xe của đối thủ, hành động của đối thủ
+        /// </summary>
+        /// <param name="instruction"></param>
         public void Enemy_Control(int instruction)
         {
             if(instruction == 1)
@@ -206,8 +220,8 @@ namespace WindowsFormsApp1
                         tank2.Shot(this);
                         Bullet b = new Bullet(tank2, this);
                         b.fly(this);
+                        b.GetForm(this);
                     });
-                    
                 }
                 if (networker._identification == 1)
                 {
@@ -215,13 +229,38 @@ namespace WindowsFormsApp1
                         tank1.Shot(this);
                         Bullet b = new Bullet(tank1, this);
                         b.fly(this);
-                    });
-                    
+                        b.GetForm(this);
+                    });                }
+            }
+        }
+        /// <summary>
+        /// Xử lý kết thúc
+        /// </summary>
+        public void Game_Over()
+        {
+            if (networker._identification == 0)
+            {
+                if (tank1.Died == true)
+                {
+                    e.Show();
+                }
+                if (tank2.Died == true)
+                {
+                    e2.Show();
                 }
             }
-
+            if (networker._identification == 1)
+            {
+                if (tank1.Died == true)
+                {
+                    e2.Show();
+                }
+                if (tank2.Died == true)
+                {
+                    e.Show();
+                }
+            }
         }
-      
     }
 
 

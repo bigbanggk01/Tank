@@ -12,13 +12,12 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    class Network
+    public class Network
     {
         Socket _client;
         public const int _buffer = 1024;
         string _currentData;
         Form1 form;
-        Map map;
         Tank enemyTank;
         public Tank myTank;
         public List<Socket> _peerList=new List<Socket>();
@@ -27,11 +26,6 @@ namespace WindowsFormsApp1
         public void GetForm(Form1 f)
         {
             form = f;
-        }
-        
-        public void GetMap(Map m)
-        {
-             map= m;
         }
         public Tank GetTank(Tank t)
         {
@@ -83,10 +77,12 @@ namespace WindowsFormsApp1
             _client.Close();
             _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             string s = data as string;
-            int a = int.Parse(s);
+            
+            int[] b = s.Split(';').Select(int.Parse).ToArray();
+            int a = b[0];
             if (a == 2)
             {
-                IPEndPoint ip = new IPEndPoint(IPAddress.Any, 6666);
+                IPEndPoint ip = new IPEndPoint(IPAddress.Any, b[1]);
                 _client.Bind(ip);
                 myTank = this.GetTank(form.tank1);
                 enemyTank = this.GetTank(form.tank2);
@@ -106,7 +102,7 @@ namespace WindowsFormsApp1
                 IPEndPoint ip = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6666);
                 try 
                 {
-                    _client.Connect(IPAddress.Parse("127.0.0.1"), 6666);
+                    _client.Connect(IPAddress.Parse("127.0.0.1"), b[1]);
                     enemyTank = this.GetTank(form.tank1);
                     myTank = this.GetTank(form.tank2);
                     _identification = 1;
@@ -138,35 +134,6 @@ namespace WindowsFormsApp1
                     if ((object)_currentData != null)
                     {
                         form.Enemy_Control(instruction);
-                        //if (int.Parse(data) == 0)
-                        //{
-                        //    this.Send("7", _peerList[0]);
-                        //}
-                        //if(instruction == 1)
-                        //{
-                        //    enemyTank.Go_Up(form, map);
-                        //}
-                        //if (instruction == 2)
-                        //{
-                        //    enemyTank.Go_Down(form, map);
-                        //}
-                        //if (instruction == 3)
-                        //{
-                        //    enemyTank.Go_Left(form, map);
-                        //}
-                        //if (instruction == 4)
-                        //{
-                        //    enemyTank.Go_Right(form, map);
-                        //}
-                        //if (instruction == 5)
-                        //{
-                        //    form.Invoke((MethodInvoker)delegate {
-                        //        enemyTank.Shot(form);
-                        //        Bullet b = new Bullet(enemyTank, form);
-                        //        b.fly(form);
-                        //    });
-                            
-                        //}
                     }
                 }
             }
@@ -180,6 +147,7 @@ namespace WindowsFormsApp1
             try { _client.Send(Serialize(data_need_to_be_sent)); }
             catch (Exception e)
             {
+                return;
             }
         }
         public void Send(string data_need_to_be_sent, Socket client)
@@ -187,7 +155,7 @@ namespace WindowsFormsApp1
             try { client.Send(Serialize(data_need_to_be_sent)); }
             catch (Exception e)
             {
-                MessageBox.Show(e.ToString(), "Problem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
         }
         byte[] Serialize(object o)

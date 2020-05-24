@@ -20,9 +20,10 @@ namespace WindowsFormsApp1
         Form1 form;
         Map map;
         Tank enemyTank;
-        
         public Tank myTank;
         public List<Socket> _peerList=new List<Socket>();
+        public int _identification;
+        public Socket client2;
         public void GetForm(Form1 f)
         {
             form = f;
@@ -65,7 +66,6 @@ namespace WindowsFormsApp1
                 _client.Receive(buffer);
                 _currentData = (string)Deserialize(buffer);
                 string data = _currentData as string;
-                //MessageBox.Show(data);
                 if ((object)_currentData != null)
                 {
                     Thread Executor = new Thread(Execute);
@@ -90,11 +90,12 @@ namespace WindowsFormsApp1
                 _client.Bind(ip);
                 myTank = this.GetTank(form.tank1);
                 enemyTank = this.GetTank(form.tank2);
+                _identification = 0;
                 while (true)
                 {
                     _client.Listen(2);
                     Socket client_peer = _client.Accept();
-                    _peerList.Add(client_peer);
+                    client2=client_peer;
                     Thread listen = new Thread(Receive_Peer);
                     listen.IsBackground = true;
                     listen.Start(client_peer);
@@ -108,6 +109,7 @@ namespace WindowsFormsApp1
                     _client.Connect(IPAddress.Parse("127.0.0.1"), 6666);
                     enemyTank = this.GetTank(form.tank1);
                     myTank = this.GetTank(form.tank2);
+                    _identification = 1;
                 }
                 catch (Exception e) { MessageBox.Show(e.ToString()); };
                 this.Send("0");
@@ -132,32 +134,39 @@ namespace WindowsFormsApp1
 
                     _currentData = (string)Deserialize(buffer);
                     string data = _currentData as string;
+                    int instruction = int.Parse(data);
                     if ((object)_currentData != null)
                     {
-                        if(int.Parse(data) == 7)
-                        {
+                        form.Enemy_Control(instruction);
+                        //if (int.Parse(data) == 0)
+                        //{
+                        //    this.Send("7", _peerList[0]);
+                        //}
+                        //if(instruction == 1)
+                        //{
+                        //    enemyTank.Go_Up(form, map);
+                        //}
+                        //if (instruction == 2)
+                        //{
+                        //    enemyTank.Go_Down(form, map);
+                        //}
+                        //if (instruction == 3)
+                        //{
+                        //    enemyTank.Go_Left(form, map);
+                        //}
+                        //if (instruction == 4)
+                        //{
+                        //    enemyTank.Go_Right(form, map);
+                        //}
+                        //if (instruction == 5)
+                        //{
+                        //    form.Invoke((MethodInvoker)delegate {
+                        //        enemyTank.Shot(form);
+                        //        Bullet b = new Bullet(enemyTank, form);
+                        //        b.fly(form);
+                        //    });
                             
-                        }
-                        if (int.Parse(data) == 0)
-                        {
-                            this.Send("7", _peerList[0]);
-                        }
-                        if(int.Parse(data) == 1)
-                        {
-                            enemyTank.Go_Up(form, map);
-                        }
-                        if (int.Parse(data) == 2)
-                        {
-                            enemyTank.Go_Down(form, map);
-                        }
-                        if (int.Parse(data) ==3)
-                        {
-                            enemyTank.Go_Left(form, map);
-                        }
-                        if (int.Parse(data) == 4)
-                        {
-                            enemyTank.Go_Right(form, map);
-                        }
+                        //}
                     }
                 }
             }
@@ -195,35 +204,5 @@ namespace WindowsFormsApp1
             BinaryFormatter bf = new BinaryFormatter();
             return bf.Deserialize(ms);
         }
-
-        //private void Add_tank(int a)
-        //{
-        //    //if (a == 1)
-        //    //{
-        //    //    form.Invoke((MethodInvoker)delegate
-        //    //    {
-        //    //        tank_peer = new Tank();
-        //    //        tank_peer.Draw(form);
-        //    //        tank_peer.x[0] = 10 + 60;
-        //    //        tank_peer.y[0] = 10 + 30;
-        //    //        tank_peer.x[1] = 9 + 60;
-        //    //        tank_peer.y[1] = 11 + 30;
-        //    //        tank_peer.x[2] = 10 + 60;
-        //    //        tank_peer.y[2] = 11 + 30;
-        //    //        tank_peer.x[3] = 11 + 60;
-        //    //        tank_peer.y[3] = 11 + 30;
-        //    //        tank_peer.x[4] = 9 + 60;
-        //    //        tank_peer.y[4] = 12 + 30;
-        //    //        tank_peer.x[5] = 11 + 60;
-        //    //        tank_peer.y[5] = 12 + 30;
-        //    //    });
-        //    //}
-        //    form.Invoke((MethodInvoker)delegate
-        //    {
-        //        tank_peer = new Tank();
-        //        tank_peer.Draw(form);
-        //    });
-
-        //}
     }
 }

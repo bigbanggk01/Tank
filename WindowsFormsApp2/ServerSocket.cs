@@ -39,7 +39,6 @@ namespace WindowsFormsApp2
                         _server.Listen(2);
                         Socket client = _server.Accept();
                         _clientList.Add(client);
-
                         Thread receive = new Thread(Receive);
                         receive.IsBackground = true;
                         receive.Start(client);
@@ -49,13 +48,11 @@ namespace WindowsFormsApp2
                 {
                     MessageBox.Show("Connect 1 lần thôi thằng ngu!");
                 }
-
             });
             listen.IsBackground = true;
             listen.Start();
             return true;
         }
-
         public void Send(string data_need_to_be_sent, Socket client)
         {
             try { client.Send(Serialize(data_need_to_be_sent)); }
@@ -93,7 +90,6 @@ namespace WindowsFormsApp2
                 client.Close();
             }
         }
-
         private void Execute(object obj)
         {
             string s = "";
@@ -112,53 +108,9 @@ namespace WindowsFormsApp2
                     this.Send("1", _clientList[b[1]]);
                     _clientList[b[1]] = null;
                 }
-                
             }
             port++;
-            //try
-            //{
-            //    if (b[0] == 0)
-            //    {
-            //        foreach (Socket client in this._clientList)
-            //        {
-            //            if (b[1] == _clientList.IndexOf(client))
-            //            {
-            //                this.Send("0;0" + ";" + _clientList.IndexOf(client), client);
-            //            }
-            //            else
-            //            {
-            //                this.Send("6;" + _clientList.IndexOf(client), client);
-            //                this.Send("7;" + _clientList.IndexOf(client), client);
-            //            }
-            //        }
-            //    }
-
-            //    else
-            //    {
-            //        if (b[0] == 8)
-            //        {
-            //            foreach (Socket item in this._clientList)
-            //            {
-            //                if (b[5] != _clientList.IndexOf(item))
-            //                {
-            //                    this.Send("8" + ";" + _clientList.IndexOf(item) + ";" + b[1] + ";" + b[2] + ";" + b[3], item);
-            //                }
-            //            }
-            //        }
-            //        else
-            //        {
-            //            foreach (Socket client in this._clientList)
-            //            {
-            //                this.Send((string)obj, client);
-            //            }
-            //        }
-
-            //    }
-
-            //}
-            //catch { }
         }
-
         byte[] Serialize(object o)
         {
             MemoryStream ms = new MemoryStream();

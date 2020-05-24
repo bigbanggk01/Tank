@@ -51,33 +51,66 @@ namespace WindowsFormsApp1
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Up)
+            if (networker._identification == 0)
             {
-                networker.myTank.Go_Up(this, map);
-                networker.Send("1");
-            }
-            if (e.KeyCode == Keys.Down)
-            {
-                networker.myTank.Go_Down(this,map );
-                networker.Send("2");
-            }
-            if (e.KeyCode == Keys.Right)
-            {
-                networker.myTank.Go_Right(this,map);
-                networker.Send("3");
-            }
-            if (e.KeyCode == Keys.Left)
-            {
-                networker.myTank.Go_Left(this,map);
-                networker.Send("4");
-            }
-            if(e.KeyCode == Keys.Space) 
-            {
-                networker.myTank.Shot(this);
-                Bullet b = new Bullet(tank1, this);
+                if (e.KeyCode == Keys.Up)
+                {
+                    tank1.Go_Up(this,map);
+                    networker.Send("1",networker.client2);
+                }
+                if (e.KeyCode == Keys.Down)
+                {
+                    tank1.Go_Down(this, map);
+                    networker.Send("2", networker.client2);
+                }
+                if (e.KeyCode == Keys.Left)
+                {
+                    tank1.Go_Left(this, map);
+                    networker.Send("3", networker.client2);
+                }
+                if (e.KeyCode == Keys.Right)
+                {
+                    tank1.Go_Right(this, map);
+                    networker.Send("4", networker.client2);
+                }
                 
-                b.fly(this);
-                networker.Send("5");
+                if (e.KeyCode == Keys.Space)
+                {
+                    tank1.Shot(this);
+                    Bullet b = new Bullet(tank1, this);
+                    b.fly(this);
+                    networker.Send("5", networker.client2);
+                }
+            }
+            if (networker._identification == 1)
+            {
+                if (e.KeyCode == Keys.Up)
+                {
+                    tank2.Go_Up(this, map);
+                    networker.Send("1");
+                }
+                if (e.KeyCode == Keys.Down)
+                {
+                    tank2.Go_Down(this, map);
+                    networker.Send("2");
+                }
+                if (e.KeyCode == Keys.Right)
+                {
+                    tank2.Go_Right(this, map);
+                    networker.Send("4");
+                }
+                if (e.KeyCode == Keys.Left)
+                {
+                    tank2.Go_Left(this, map);
+                    networker.Send("3");
+                }
+                if (e.KeyCode == Keys.Space)
+                {
+                    tank2.Shot(this);
+                    Bullet b = new Bullet(tank2, this);
+                    b.fly(this);
+                    networker.Send("5");
+                }
             }
         }
         
@@ -119,6 +152,75 @@ namespace WindowsFormsApp1
             this.Controls.Add(Tank_Buy);
             this.Controls.Add(ChatBox);
         }    
+        public void Enemy_Control(int instruction)
+        {
+            if(instruction == 1)
+            {
+                if (networker._identification == 0)
+                {
+                    tank2.Go_Up(this,map);
+                }
+                if (networker._identification == 1)
+                {
+                    tank1.Go_Up(this, map);
+                }
+            }
+            if (instruction == 2)
+            {
+                if (networker._identification == 0)
+                {
+                    tank2.Go_Down(this, map);
+                }
+                if (networker._identification == 1)
+                {
+                    tank1.Go_Down(this, map);
+                }
+            }
+            if (instruction == 3)
+            {
+                if (networker._identification == 0)
+                {
+                    tank2.Go_Left(this, map);
+                }
+                if (networker._identification == 1)
+                {
+                    tank1.Go_Left(this, map);
+                }
+            }
+            if (instruction == 4)
+            {
+                if (networker._identification == 0)
+                {
+                    tank2.Go_Right(this, map);
+                }
+                if (networker._identification == 1)
+                {
+                    tank1.Go_Right(this, map);
+                }
+            }
+            if (instruction == 5)
+            {
+                if (networker._identification == 0)
+                {
+                    this.Invoke((MethodInvoker)delegate {
+                        tank2.Shot(this);
+                        Bullet b = new Bullet(tank2, this);
+                        b.fly(this);
+                    });
+                    
+                }
+                if (networker._identification == 1)
+                {
+                    this.Invoke((MethodInvoker)delegate {
+                        tank1.Shot(this);
+                        Bullet b = new Bullet(tank1, this);
+                        b.fly(this);
+                    });
+                    
+                }
+            }
+
+        }
       
     }
 

@@ -22,7 +22,7 @@ namespace WindowsFormsApp1
         private SolidBrush sb;
         private Graphics g;
         Map map=new Map();
-        Form1 form = new Form1();
+        Form1 form=new Form1(1);
         bool isBullet = true;
         public void GetForm(Form1 f)
         {

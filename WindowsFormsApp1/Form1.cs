@@ -22,12 +22,19 @@ namespace WindowsFormsApp1
             this.Size = Screen.PrimaryScreen.WorkingArea.Size;
             networker= new Network();
             networker.GetForm(this);
-            this.WindowState = FormWindowState.Minimized;
-            this.ShowInTaskbar = false;
-            LoginForm.Show();
             LoginForm.GetForm(this);
+            LoginForm.Show();
+            
+            
         }
-
+        public Form1(int a) 
+        {
+            if (a == 1)
+            {
+                
+                InitializeComponent();
+            }
+        }
         public Network networker;
         public Tank tank1 = new Tank();
         public Tank tank2 = new Tank();
@@ -36,7 +43,7 @@ namespace WindowsFormsApp1
         public Map map = new Map();
         EndingForm e = new EndingForm();
         EndingForm2 e2 = new EndingForm2();
-        LoginForm LoginForm = new LoginForm();
+        public LoginForm LoginForm = new LoginForm();
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this);
@@ -57,6 +64,8 @@ namespace WindowsFormsApp1
             tank2.Draw(this);
             tank2.GetForm(this);
             map.Draw(this);
+            
+            
         }
         /// <summary>
         /// Các nút bấm
@@ -166,6 +175,8 @@ namespace WindowsFormsApp1
             this.Controls.Add(SignOut);
             this.Controls.Add(Tank_Buy);
             this.Controls.Add(ChatBox);
+
+            this.ShowInTaskbar = false;
             this.Hide();
         }    
         public void GetForm(LoginForm lf)

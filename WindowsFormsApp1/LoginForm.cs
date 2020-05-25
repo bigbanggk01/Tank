@@ -20,7 +20,6 @@ namespace WindowsFormsApp1
         public LoginForm()
         {
             InitializeComponent();
-            
         }
 
         public string s;

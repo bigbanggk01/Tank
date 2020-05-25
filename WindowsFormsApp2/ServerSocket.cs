@@ -91,23 +91,10 @@ namespace WindowsFormsApp2
                             data = "0;" + _clientList.IndexOf(client);
                             if ((object)_currentData != null)
                             {
-                                Thread Executor = new Thread(Execute);
-                                Executor.IsBackground = true;
-                                Executor.Start((object)data);
+                                Execute(data);
                             }
                         }
                     }
-                    else
-                    {
-                        data = data + ";" + _clientList.IndexOf(client);
-                        if ((object)_currentData != null)
-                        {
-                            Thread Executor = new Thread(Execute);
-                            Executor.IsBackground = true;
-                            Executor.Start((object)data);
-                        }
-                    }
-
                 }
             }
             catch

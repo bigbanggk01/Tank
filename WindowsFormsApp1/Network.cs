@@ -64,14 +64,6 @@ namespace WindowsFormsApp1
                 _client.Receive(buffer);
                 _currentData = (string)Deserialize(buffer);
                 string data = _currentData as string;
-                //if (data.Equals("OK"))
-                //{
-                //    Send("0");
-                //    form.WindowState= FormWindowState.Normal;
-                //}
-                //else {
-                    
-                //}
                 if ((object)_currentData != null)
                 {
                     Thread Executor = new Thread(Execute);
@@ -104,7 +96,7 @@ namespace WindowsFormsApp1
                 {
                     form.WindowState = FormWindowState.Maximized;
                     form.ShowInTaskbar = true;
-                    LoginForm.Hide();
+                    LoginForm.Close();
                 });
                 
                 while (true)
@@ -131,7 +123,7 @@ namespace WindowsFormsApp1
                     {
                         form.WindowState = FormWindowState.Maximized;
                         form.ShowInTaskbar = true;
-                        LoginForm.Hide();
+                        LoginForm.Close();
                     });
                 }
                 catch (Exception e) { MessageBox.Show(e.ToString()); };

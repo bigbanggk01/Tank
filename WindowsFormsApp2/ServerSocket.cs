@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Cryptography.X509Certificates;
 using System.Net.NetworkInformation;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 using System.Threading;
-using System.Reflection.Emit;
-using System.Security.Cryptography;
-using System.Data.Sql;
 using System.Data.SqlClient;
 using System.Data;
+
 namespace WindowsFormsApp2
 {
     class ServerSocket
@@ -24,7 +19,8 @@ namespace WindowsFormsApp2
         string _currentData;
         public List<Socket> _clientList;
         public const int _buffer = 1024;
-        int port=11001;
+        string _ipAdressOfpeer_1 = "";
+        string _ipAdressOfpeer_2 = "";
         public bool Start()
         {
             _clientList = new List<Socket>();
@@ -77,7 +73,7 @@ namespace WindowsFormsApp2
                     _currentData = (string)Deserialize(buffer);
                     string data = _currentData as string;
                     char[] b = { ';' };
-                    Int32 count = 2;
+                    Int32 count = 3;
                     String[] strList = data.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
 
                     if (strList[0].Equals("Login"))
@@ -91,10 +87,18 @@ namespace WindowsFormsApp2
                             data = "0;" + _clientList.IndexOf(client);
                             if ((object)_currentData != null)
                             {
+                                _ipAdressOfpeer_1 = _ipAdressOfpeer_2;
+                                _ipAdressOfpeer_2 = strList[2];
                                 Execute(data);
                             }
                         }
                     }
+                    if (strList[0].Equals("update")==true)
+                    {
+                        SqlConnection sqlcon = new SqlConnection(@"Data Source=DESKTOP-AB6F94G;Initial Catalog=TankDB;Integrated Security=True");
+                        SqlDataAdapter sda = new SqlDataAdapter(strList[1], sqlcon);
+                    }
+                    
                 }
             }
             catch
@@ -114,16 +118,15 @@ namespace WindowsFormsApp2
             {
                 if (b[1] % 2 == 0)
                 {
-                    this.Send("2;"+port.ToString(), _clientList[b[1]]);
+                    this.Send("2;0", _clientList[b[1]]);
                     _clientList[b[1]] = null;
                 }
                 if (b[1] % 2 != 0)
                 {
-                    this.Send("1;"+(port-1).ToString(), _clientList[b[1]]);
+                    this.Send("1;"+_ipAdressOfpeer_1, _clientList[b[1]]);
                     _clientList[b[1]] = null;
                 }
             }
-            port++;
         }
         byte[] Serialize(object o)
         {
@@ -158,6 +161,5 @@ namespace WindowsFormsApp2
             }
             return output;
         }
-
     }
 }

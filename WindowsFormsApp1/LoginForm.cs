@@ -12,6 +12,7 @@ using System.Data.SqlClient;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using System.Net.NetworkInformation;
 
 namespace WindowsFormsApp1
 {
@@ -24,55 +25,31 @@ namespace WindowsFormsApp1
 
         public string s;
         Form1 form;
-
+        
         private void LoginForm_Load(object sender, EventArgs e)
         {
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
-            //SqlConnection sqlcon = new SqlConnection(@"Data Source=DESKTOP-AB6F94G;Initial Catalog=TankDB;Integrated Security=True");
-            string query = "Select * from Usertable Where username = '" + textBox1.Text.Trim() + "' and passwo = '" + textBox2.Text.Trim()+"'";
-            form.networker.Send("Login;"+ query);
+            string query = "Select * from Usertable Where username = '" + textBox1.Text.Trim()
+                + "' and passwo = '" + textBox2.Text.Trim()+"'";
+            NetworkInterfaceType type = NetworkInterfaceType.Wireless80211;
+            string Local = form.networker.GetLocalIP(type);
+            form.networker.Send("Login;"+ query+";"+Local);
             form.networker.GetLogin(this);
-            //s = textBox1.Text;
-            //SqlDataAdapter sda = new SqlDataAdapter(query, sqlcon);
-            //DataTable dtbl = new DataTable();
-            //sda.Fill(dtbl);
-            //if(dtbl.Rows.Count ==1)
-            //{
-            //    dtbl = new DataTable();
-            //    string query2 = "select tank from usertable where username ='" + textBox1.Text.Trim() + "' and tank ='1'";
-            //    sda = new SqlDataAdapter(query2, sqlcon);
-            //    sda.Fill(dtbl);
-            //    if (dtbl.Rows.Count == 1) 
-            //    {
-            //        f = new Form1();
-            //        f.GetForm(this);
-            //        f.Show();
-            //        this.Hide();
-            //    }
-            //    else
-            //    {
-            //        BuyForm bf = new BuyForm();
-            //        bf.Show();
-            //    }
-
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Check your username and password");
-            //}
+            s = textBox1.Text;
         }
-        //public void OpenF()
-        //{
-        //    Form1 f = new Form1();
-        //    f.Show();
-        //}
         public void GetForm(Form1 f)
         {
             form = f;
+        }
+
+        private void LoginForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            form.Invoke((MethodInvoker)delegate {
+                form.Close();
+            });
         }
     }
 }

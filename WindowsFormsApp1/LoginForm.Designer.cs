@@ -106,6 +106,7 @@
             this.Controls.Add(this.pictureBox1);
             this.Name = "LoginForm";
             this.Text = "Tank War";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.LoginForm_FormClosed);
             this.Load += new System.EventHandler(this.LoginForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);

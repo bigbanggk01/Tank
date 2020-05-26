@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
@@ -9,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using System.Net.NetworkInformation;
 
 namespace WindowsFormsApp1
 {
@@ -24,6 +23,7 @@ namespace WindowsFormsApp1
         public List<Socket> _peerList=new List<Socket>();
         public int _identification;
         public Socket client2;
+        ManualResetEvent completed = new ManualResetEvent(false);
         public void GetForm(Form1 f)
         {
             form = f;
@@ -39,7 +39,7 @@ namespace WindowsFormsApp1
         public bool Start()
         {
             _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 11000);
+            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("192.168.0.103"), 11000);
             try
             {
                 _client.Connect(iPEndPoint);
@@ -52,9 +52,7 @@ namespace WindowsFormsApp1
             {
                 return false;
             }
-            
         }
-
         public void Receive()
         {
             _currentData = "";
@@ -80,14 +78,18 @@ namespace WindowsFormsApp1
         {
             _client.Close();
             _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            string s = data as string;
             
-            int[] b = s.Split(';').Select(int.Parse).ToArray();
-            int a = b[0];
-            if (a == 2)
+
+            string s = data as string;
+            char[] b = { ';' };
+            Int32 count = 2;
+            String[] strList = s.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
+            if (strList[0].Equals("2")==true)
             {
-                IPEndPoint ip = new IPEndPoint(IPAddress.Any, b[1]);
+                IPEndPoint ip = new IPEndPoint(IPAddress.Any, 11001);
+                string IpAdress = GetLocalIP(NetworkInterfaceType.Wireless80211);
                 _client.Bind(ip);
+
                 myTank = this.GetTank(form.tank1);
                 enemyTank = this.GetTank(form.tank2);
                 _identification = 0;
@@ -109,13 +111,12 @@ namespace WindowsFormsApp1
                     listen.Start(client_peer);
                 }
             }
-            if (a == 1)
+            if (strList[0].Equals("1")==true)
             {
-                IPEndPoint ip = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6666);
-
+                IPEndPoint ip = new IPEndPoint(IPAddress.Parse(strList[1]), 11001);
                 try 
                 {
-                    _client.Connect(IPAddress.Parse("127.0.0.1"), b[1]);
+                    _client.Connect(ip);
                     enemyTank = this.GetTank(form.tank1);
                     myTank = this.GetTank(form.tank2);
                     _identification = 1;
@@ -163,7 +164,11 @@ namespace WindowsFormsApp1
         }
         public void Send(string data_need_to_be_sent)
         {
-            try { _client.Send(Serialize(data_need_to_be_sent)); }
+            try
+            {
+                _client.Send(Serialize(data_need_to_be_sent));
+                completed.Set();
+            }
             catch (Exception e)
             {
                 return;
@@ -190,6 +195,25 @@ namespace WindowsFormsApp1
             MemoryStream ms = new MemoryStream(data);
             BinaryFormatter bf = new BinaryFormatter();
             return bf.Deserialize(ms);
+        }
+
+        public string GetLocalIP(NetworkInterfaceType type)
+        {
+            string output = "";
+            foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (item.NetworkInterfaceType == type && item.OperationalStatus == OperationalStatus.Up)
+                {
+                    foreach (UnicastIPAddressInformation ip in item.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            output = ip.Address.ToString();
+                        }
+                    }
+                }
+            }
+            return output;
         }
     }
 }

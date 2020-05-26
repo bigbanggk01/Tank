@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Data.SqlClient;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
 using System.Windows.Forms;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace WindowsFormsApp1
 {
@@ -31,7 +27,6 @@ namespace WindowsFormsApp1
         {
             if (a == 1)
             {
-                
                 InitializeComponent();
             }
         }
@@ -64,8 +59,6 @@ namespace WindowsFormsApp1
             tank2.Draw(this);
             tank2.GetForm(this);
             map.Draw(this);
-            
-            
         }
         /// <summary>
         /// Các nút bấm
@@ -146,7 +139,7 @@ namespace WindowsFormsApp1
             }
             else
             {
-                //networker.Send("0");
+                
             }
             Label ChatBox = new Label();
             ChatBox.Location = new Point(this.Width - 290, 0);
@@ -265,6 +258,9 @@ namespace WindowsFormsApp1
                 {
                     e2.Show();
                     e2.Get(this);
+                    Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    client.Connect(IPAddress.Parse("127.0.0.1"), 11000);
+                    //client.Send(Serialize("update;update usertable set tank='0' where username='" + LoginForm.s + "'"));
                 }
                 if (tank2.Died == true)
                 {
@@ -285,6 +281,13 @@ namespace WindowsFormsApp1
                     e2.Get(this);
                 }
             }
+        }
+        byte[] Serialize(object o)
+        {
+            MemoryStream ms = new MemoryStream();
+            BinaryFormatter bf = new BinaryFormatter();
+            bf.Serialize(ms, o);
+            return ms.ToArray();
         }
     }
 

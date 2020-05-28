@@ -24,6 +24,7 @@ namespace WindowsFormsApp1
         public int _identification;
         public Socket client2;
         ManualResetEvent completed = new ManualResetEvent(false);
+        Thread listen;
         public void GetForm(Form1 f)
         {
             form = f;
@@ -39,11 +40,12 @@ namespace WindowsFormsApp1
         public bool Start()
         {
             _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("192.168.0.103"), 11000);
+            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 11000);
+            //IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("192.168.0.103"), 11000);
             try
             {
                 _client.Connect(iPEndPoint);
-                Thread listen = new Thread(Receive);
+                listen = new Thread(Receive);
                 listen.IsBackground = true;
                 listen.Start();
                 return true;
@@ -52,6 +54,10 @@ namespace WindowsFormsApp1
             {
                 return false;
             }
+        }
+        public void Stop()
+        {
+            _client.Close();
         }
         public void Receive()
         {
@@ -87,7 +93,8 @@ namespace WindowsFormsApp1
             if (strList[0].Equals("2")==true)
             {
                 IPEndPoint ip = new IPEndPoint(IPAddress.Any, 11001);
-                string IpAdress = GetLocalIP(NetworkInterfaceType.Wireless80211);
+                //string IpAdress = GetLocalIP(NetworkInterfaceType.Wireless80211);
+                string IpAdress = GetLocalIP(NetworkInterfaceType.Ethernet);
                 _client.Bind(ip);
 
                 myTank = this.GetTank(form.tank1);
@@ -98,23 +105,20 @@ namespace WindowsFormsApp1
                 {
                     form.WindowState = FormWindowState.Maximized;
                     form.ShowInTaskbar = true;
-                    LoginForm.Close();
+                    LoginForm.Hide();
                 });
-                
-                while (true)
-                {
-                    _client.Listen(2);
-                    Socket client_peer = _client.Accept();
-                    client2=client_peer;
-                    Thread listen = new Thread(Receive_Peer);
-                    listen.IsBackground = true;
-                    listen.Start(client_peer);
-                }
+                _client.Listen(2);
+                Socket client_peer = _client.Accept();
+                client2 = client_peer;
+                Thread listenPeer = new Thread(Receive_Peer);
+                listenPeer.IsBackground = true;
+                listenPeer.Start(client_peer);
+                listen.Abort();
             }
             if (strList[0].Equals("1")==true)
             {
                 IPEndPoint ip = new IPEndPoint(IPAddress.Parse(strList[1]), 11001);
-                try 
+                try
                 {
                     _client.Connect(ip);
                     enemyTank = this.GetTank(form.tank1);
@@ -124,15 +128,38 @@ namespace WindowsFormsApp1
                     {
                         form.WindowState = FormWindowState.Maximized;
                         form.ShowInTaskbar = true;
-                        LoginForm.Close();
+                        LoginForm.Hide();
                     });
+                    if (_client.Connected == true) 
+                    {
+                        Thread listenPeer = new Thread(Receive_Peer);
+                        listenPeer.IsBackground = true;
+                        listenPeer.Start(null);
+                        listen.Abort();
+                    }
+                    
                 }
-                catch (Exception e) { MessageBox.Show(e.ToString()); };
-                this.Send("0");
-                
-                Thread listen = new Thread(Receive_Peer);
-                listen.IsBackground = true;
-                listen.Start(null);
+                catch(Exception e)
+                {
+                    listen.Abort();
+                    _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 11000);
+                    //IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("192.168.0.103"), 11000);
+                    try
+                    {
+                        _client.Connect(iPEndPoint);
+                        listen = new Thread(Receive);
+                        listen.IsBackground = true;
+                        listen.Start();
+                        LoginForm.CallBackToConnect();
+                        LoginForm.CallBackToConnect();
+                    }
+                    catch (Exception E)
+                    {
+                        MessageBox.Show(E.ToString());
+                    }
+                }
+
             }
         }
         
@@ -176,7 +203,11 @@ namespace WindowsFormsApp1
         }
         public void Send(string data_need_to_be_sent, Socket client)
         {
-            try { client.Send(Serialize(data_need_to_be_sent)); }
+            if (client == null) return;
+            try 
+            { 
+                client.Send(Serialize(data_need_to_be_sent)); 
+            }
             catch (Exception e)
             {
                 return;
@@ -189,7 +220,6 @@ namespace WindowsFormsApp1
             bf.Serialize(ms, o);
             return ms.ToArray();
         }
-
         object Deserialize(byte[] data)
         {
             MemoryStream ms = new MemoryStream(data);

@@ -14,14 +14,16 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
             //tạo form full màn hình 
-            this.Location = new Point(0, 0);
-            this.Size = Screen.PrimaryScreen.WorkingArea.Size;
-            networker= new Network();
+            Rectangle screen = Screen.PrimaryScreen.WorkingArea;
+            int w = Width = screen.Width; //>= screen.Width ? screen.Width : (screen.Width + Width) / 2;
+            int h = Height = screen.Height;// >= screen.Height ? screen.Height : (screen.Height + Height) / 2;
+            this.Location = new Point((screen.Width - w) / 2, (screen.Height - h) / 2);
+            this.Size = new Size(w, h);
+            
+            networker = new Network();
             networker.GetForm(this);
             LoginForm.GetForm(this);
             LoginForm.Show();
-            
-            
         }
         public Form1(int a) 
         {
@@ -29,7 +31,28 @@ namespace WindowsFormsApp1
             {
                 InitializeComponent();
             }
+            if (a == 2)
+            {
+                InitializeComponent();
+                //tạo form full màn hình 
+                Rectangle screen = Screen.PrimaryScreen.WorkingArea;
+                int w = Width = screen.Width; //>= screen.Width ? screen.Width : (screen.Width + Width) / 2;
+                int h = Height = screen.Height;// >= screen.Height ? screen.Height : (screen.Height + Height) / 2;
+                this.Location = new Point((screen.Width - w) / 2, (screen.Height - h) / 2);
+                this.Size = new Size(w, h);
+                button2.Hide();
+                textBox1.Hide();
+                button2.Anchor = AnchorStyles.Bottom;
+                textBox1.Anchor = AnchorStyles.Bottom;
+                networker = new Network();
+                networker.GetForm(this);
+                networker.Start();
+                this.WindowState = FormWindowState.Maximized;
+                this.ShowInTaskbar = true;
+
+            }
         }
+        
         public Network networker;
         public Tank tank1 = new Tank();
         public Tank tank2 = new Tank();
@@ -39,6 +62,7 @@ namespace WindowsFormsApp1
         EndingForm e = new EndingForm();
         EndingForm2 e2 = new EndingForm2();
         public LoginForm LoginForm = new LoginForm();
+        ListView ChatBox;
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this);
@@ -67,8 +91,29 @@ namespace WindowsFormsApp1
         /// <param name="e"></param>
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
+            
             if (networker._identification == 0)
             {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    if (textBox1.Visible == true)
+                    {
+                        if (textBox1.Text.Equals("") == true) return;
+                        EventArgs E = new EventArgs();
+                        textBox1.Hide();
+                        button2.Hide();
+                        button2_Click(sender, E);
+                        textBox1.Clear();
+                        textBox1.DisableSelect();
+                        networker.Send("6", networker.client2);
+                        return;
+                    }
+                    textBox1.Show();
+                    button2.Show();
+                    textBox1.Focus();
+                    textBox1.TabIndex = 1;
+                }
+                if (networker.client2 == null) return;
                 if (e.KeyCode == Keys.Up)
                 {
                     tank1.Go_Up(this,map);
@@ -101,6 +146,25 @@ namespace WindowsFormsApp1
             }
             if (networker._identification == 1)
             {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    if (textBox1.Visible == true)
+                    {
+                        if (textBox1.Text.Equals("") == true) return;
+                        EventArgs E = new EventArgs();
+                        textBox1.Hide();
+                        button2.Hide();
+                        button2_Click(sender, E);
+                        textBox1.Clear();
+                        textBox1.DisableSelect();
+                        networker.Send("6");
+                        return;
+                    }
+                    textBox1.Show();
+                    button2.Show();
+                    textBox1.Focus();
+                    textBox1.TabIndex = 1;
+                }
                 if (e.KeyCode == Keys.Up)
                 {
                     tank2.Go_Up(this, map);
@@ -141,30 +205,38 @@ namespace WindowsFormsApp1
             {
                 
             }
-            Label ChatBox = new Label();
-            ChatBox.Location = new Point(this.Width - 290, 0);
+
+            button2.Hide();
+            textBox1.Hide();
+            button2.Anchor = AnchorStyles.Bottom;
+            textBox1.Anchor = AnchorStyles.Bottom;
+
+            ChatBox = new ListView();
+            ChatBox.Location = new Point(this.Width - 320, 0);
             ChatBox.Size = new Size(300, Height - 500);
-            ChatBox.Text = "Player chat box and information in this game";
+            ChatBox.View = View.List;
             ChatBox.Font = new Font("Lucida Console", 10);
-            
+            ChatBox.Anchor = AnchorStyles.Right;
+
             Button SignOut = new Button();
             SignOut.Location = new Point(this.Width - 200, this.Height - 100);
             SignOut.Text = "Sign Out";
             SignOut.Size = new Size(150, 30);
             SignOut.TabStop = false;
             SignOut.Font = new Font("Lucida Console", 10);
-
+            SignOut.Anchor = AnchorStyles.Bottom;
+            
             Button Tank_Buy = new Button();
             Tank_Buy.Location = new Point(this.Width - 200, this.Height - 150);
             Tank_Buy.Text = "Buy new tank";
             Tank_Buy.Size = new Size(150, 30);
             Tank_Buy.TabStop = false;
             Tank_Buy.Font = new Font("Lucida Console", 10);
-
+            Tank_Buy.Anchor = AnchorStyles.Bottom;
             //Stop pressing button using keyboard
             Tank_Buy.DisableSelect();
             SignOut.DisableSelect();
-
+            button2.DisableSelect();
             this.Controls.Add(SignOut);
             this.Controls.Add(Tank_Buy);
             this.Controls.Add(ChatBox);
@@ -244,7 +316,9 @@ namespace WindowsFormsApp1
                         Bullet b = new Bullet(tank1, this);
                         b.fly(this);
                         b.GetForm(this);
-                    });                }
+                    });               
+                }
+                
             }
         }
         /// <summary>
@@ -288,6 +362,13 @@ namespace WindowsFormsApp1
             BinaryFormatter bf = new BinaryFormatter();
             bf.Serialize(ms, o);
             return ms.ToArray();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var row = new ListViewItem(textBox1.Text);
+            ChatBox.Items.Add(row);
+            ChatBox.DisableSelect();
         }
     }
 

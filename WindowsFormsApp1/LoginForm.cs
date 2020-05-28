@@ -34,22 +34,37 @@ namespace WindowsFormsApp1
         {
             string query = "Select * from Usertable Where username = '" + textBox1.Text.Trim()
                 + "' and passwo = '" + textBox2.Text.Trim()+"'";
-            NetworkInterfaceType type = NetworkInterfaceType.Wireless80211;
+            //NetworkInterfaceType type = NetworkInterfaceType.Wireless80211;
+            NetworkInterfaceType type = NetworkInterfaceType.Ethernet;
             string Local = form.networker.GetLocalIP(type);
             form.networker.Send("Login;"+ query+";"+Local);
             form.networker.GetLogin(this);
             s = textBox1.Text;
         }
+        
         public void GetForm(Form1 f)
         {
             form = f;
         }
-
-        private void LoginForm_FormClosed(object sender, FormClosedEventArgs e)
+        private void LoginForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            form.Invoke((MethodInvoker)delegate {
+
+            form.networker.Stop();
+            form.Invoke((MethodInvoker)delegate
+            {
                 form.Close();
             });
+
+        }
+        public void CallBackToConnect()
+        {
+            string query = "Select * from Usertable Where username = '" + textBox1.Text.Trim()
+                + "' and passwo = '" + textBox2.Text.Trim() + "'";
+            //NetworkInterfaceType type = NetworkInterfaceType.Wireless80211;
+            NetworkInterfaceType type = NetworkInterfaceType.Ethernet;
+            string Local = form.networker.GetLocalIP(type);
+            form.networker.Send("Login;" + query + ";" + Local);
+            s = textBox1.Text;
         }
     }
 }

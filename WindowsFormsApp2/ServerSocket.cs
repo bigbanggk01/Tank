@@ -10,11 +10,12 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Data.SqlClient;
 using System.Data;
-
+using System.Management;
 namespace WindowsFormsApp2
 {
     class ServerSocket
     {
+        
         Socket _server;
         string _currentData;
         public List<Socket> _clientList;
@@ -26,7 +27,10 @@ namespace WindowsFormsApp2
             _clientList = new List<Socket>();
             _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 11000);
-            try { _server.Bind(iPEndPoint); }
+            try 
+            { 
+                _server.Bind(iPEndPoint);
+            }
             catch { }
             Thread listen = new Thread(() =>
             {
@@ -119,12 +123,16 @@ namespace WindowsFormsApp2
                 if (b[1] % 2 == 0)
                 {
                     this.Send("2;0", _clientList[b[1]]);
-                    _clientList[b[1]] = null;
                 }
                 if (b[1] % 2 != 0)
                 {
+                    if(_clientList[b[1]-1].Connected== false)
+                    {
+                        this.Send("2;0", _clientList[b[1]]);
+                        _clientList[b[1] - 1] = _clientList[b[1]];
+                        _clientList.Remove(_clientList[b[1]]);
+                    }
                     this.Send("1;"+_ipAdressOfpeer_1, _clientList[b[1]]);
-                    _clientList[b[1]] = null;
                 }
             }
         }

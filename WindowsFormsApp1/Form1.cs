@@ -105,7 +105,7 @@ namespace WindowsFormsApp1
                         button2_Click(sender, E);
                         textBox1.Clear();
                         textBox1.DisableSelect();
-                        networker.Send("6", networker.client2);
+                        networker.Send("6", networker._client2);
                         return;
                     }
                     textBox1.Show();
@@ -113,26 +113,26 @@ namespace WindowsFormsApp1
                     textBox1.Focus();
                     textBox1.TabIndex = 1;
                 }
-                if (networker.client2 == null) return;
+                if (networker._client2 == null) return;
                 if (e.KeyCode == Keys.Up)
                 {
                     tank1.Go_Up(this,map);
-                    networker.Send("1",networker.client2);
+                    networker.Send("1",networker._client2);
                 }
                 if (e.KeyCode == Keys.Down)
                 {
                     tank1.Go_Down(this, map);
-                    networker.Send("2", networker.client2);
+                    networker.Send("2", networker._client2);
                 }
                 if (e.KeyCode == Keys.Left)
                 {
                     tank1.Go_Left(this, map);
-                    networker.Send("3", networker.client2);
+                    networker.Send("3", networker._client2);
                 }
                 if (e.KeyCode == Keys.Right)
                 {
                     tank1.Go_Right(this, map);
-                    networker.Send("4", networker.client2);
+                    networker.Send("4", networker._client2);
                 }
                 
                 if (e.KeyCode == Keys.Space)
@@ -141,7 +141,7 @@ namespace WindowsFormsApp1
                     Bullet b = new Bullet(tank1, this);
                     b.GetForm(this);
                     b.fly(this);
-                    networker.Send("5", networker.client2);
+                    networker.Send("5", networker._client2);
                 }
             }
             if (networker._identification == 1)
@@ -157,7 +157,7 @@ namespace WindowsFormsApp1
                         button2_Click(sender, E);
                         textBox1.Clear();
                         textBox1.DisableSelect();
-                        networker.Send("6");
+                        networker.Send("6",networker._client1);
                         return;
                     }
                     textBox1.Show();
@@ -168,22 +168,22 @@ namespace WindowsFormsApp1
                 if (e.KeyCode == Keys.Up)
                 {
                     tank2.Go_Up(this, map);
-                    networker.Send("1");
+                    networker.Send("1", networker._client1);
                 }
                 if (e.KeyCode == Keys.Down)
                 {
                     tank2.Go_Down(this, map);
-                    networker.Send("2");
+                    networker.Send("2", networker._client1);
                 }
                 if (e.KeyCode == Keys.Left)
                 {
                     tank2.Go_Left(this, map);
-                    networker.Send("3");
+                    networker.Send("3", networker._client1);
                 }
                 if (e.KeyCode == Keys.Right)
                 {
                     tank2.Go_Right(this, map);
-                    networker.Send("4");
+                    networker.Send("4", networker._client1);
                 }
                 if (e.KeyCode == Keys.Space)
                 {
@@ -191,7 +191,7 @@ namespace WindowsFormsApp1
                     Bullet b = new Bullet(tank2, this);
                     b.GetForm(this);
                     b.fly(this);
-                    networker.Send("5");
+                    networker.Send("5", networker._client1);
                 }
             }
         }
@@ -366,7 +366,7 @@ namespace WindowsFormsApp1
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var row = new ListViewItem(textBox1.Text);
+            var row = new ListViewItem("You: "+textBox1.Text);
             ChatBox.Items.Add(row);
             ChatBox.DisableSelect();
         }

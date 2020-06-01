@@ -22,3 +22,5 @@ D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.EndingForm.resourc
 D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.EndingForm2.resources
 D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.LoginForm.resources
 D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.BuyForm.resources
+D:\New folder (6)\WindowsFormsApp1\obj\Debug\Interop.NATUPNPLib.dll
+D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.csproj.ResolveComReference.cache

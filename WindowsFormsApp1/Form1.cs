@@ -63,6 +63,8 @@ namespace WindowsFormsApp1
         EndingForm2 e2 = new EndingForm2();
         public LoginForm LoginForm = new LoginForm();
         ListView ChatBox;
+        public ListView Online;
+
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this);
@@ -212,11 +214,18 @@ namespace WindowsFormsApp1
             textBox1.Anchor = AnchorStyles.Bottom;
 
             ChatBox = new ListView();
-            ChatBox.Location = new Point(this.Width - 320, 0);
+            ChatBox.Location = new Point(this.Width - 320, -9);
             ChatBox.Size = new Size(300, Height - 500);
             ChatBox.View = View.List;
             ChatBox.Font = new Font("Lucida Console", 10);
             ChatBox.Anchor = AnchorStyles.Right;
+
+            Online = new ListView();
+            Online.Location = new Point(Width - 320, Height-490);
+            Online.Size = new Size(300, 353);
+            Online.View = View.List;
+            Online.Font = new Font("Lucida Console", 10);
+            Online.Anchor = AnchorStyles.Right;
 
             Button SignOut = new Button();
             SignOut.Location = new Point(this.Width - 200, this.Height - 100);
@@ -226,20 +235,13 @@ namespace WindowsFormsApp1
             SignOut.Font = new Font("Lucida Console", 10);
             SignOut.Anchor = AnchorStyles.Bottom;
             
-            Button Tank_Buy = new Button();
-            Tank_Buy.Location = new Point(this.Width - 200, this.Height - 150);
-            Tank_Buy.Text = "Buy new tank";
-            Tank_Buy.Size = new Size(150, 30);
-            Tank_Buy.TabStop = false;
-            Tank_Buy.Font = new Font("Lucida Console", 10);
-            Tank_Buy.Anchor = AnchorStyles.Bottom;
+           
             //Stop pressing button using keyboard
-            Tank_Buy.DisableSelect();
             SignOut.DisableSelect();
             button2.DisableSelect();
             this.Controls.Add(SignOut);
-            this.Controls.Add(Tank_Buy);
             this.Controls.Add(ChatBox);
+            this.Controls.Add(Online);
 
             this.ShowInTaskbar = false;
             this.Hide();
@@ -371,6 +373,5 @@ namespace WindowsFormsApp1
             ChatBox.DisableSelect();
         }
     }
-
 
 }

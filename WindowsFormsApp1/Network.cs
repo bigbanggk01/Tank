@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -9,6 +8,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Net.NetworkInformation;
 using System.Net.PeerToPeer;
+using System.Data;
 
 namespace WindowsFormsApp1
 {
@@ -27,6 +27,7 @@ namespace WindowsFormsApp1
         public int _identification;
         ManualResetEvent completed = new ManualResetEvent(false);
         Thread listen;
+        public List<string> _ipList = new List<string>();
         public void GetForm(Form1 f)
         {
             form = f;
@@ -84,25 +85,23 @@ namespace WindowsFormsApp1
         }
         private void Execute(object data)
         {
-            //_client.Close();
             //_client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _client1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             string s = data as string;
             char[] b = { ';' };
-            Int32 count = 2;
+            Int32 count = 100;
             String[] strList = s.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
-            if (strList[0].Equals("2")==true)
+            
+            if (strList[0].Equals("2")==true )
             {
-                
                 //string IpAdress = GetLocalIP(NetworkInterfaceType.Wireless80211);
                 string IpAdress = GetLocalIP(NetworkInterfaceType.Ethernet);
                 IPEndPoint ip = new IPEndPoint(IPAddress.Parse(IpAdress), 11001);
                 _client1.Bind(ip);
-
                 myTank = this.GetTank(form.tank1);
                 enemyTank = this.GetTank(form.tank2);
                 _identification = 0;
-                
+                Add_to_ipList(_ipList, strList[1]);
                 form.Invoke((MethodInvoker)delegate
                 {
                     form.WindowState = FormWindowState.Maximized;
@@ -110,7 +109,7 @@ namespace WindowsFormsApp1
                     LoginForm.Hide();
                 });
 
-                //Bat dau lang nghe nguoi thu 2
+                //Cho doi thu
                 _client1.Listen(1);
                 Socket client_peer = _client1.Accept();
                 _client2 = client_peer;
@@ -118,12 +117,21 @@ namespace WindowsFormsApp1
                 Thread listenPeer = new Thread(Receive_Peer);
                 listenPeer.IsBackground = true;
                 listenPeer.Start(client_peer);
-                //Dong Thread nghe server 
-                listen.Abort();
             }
             if (strList[0].Equals("1")==true)
             {
-                IPEndPoint ip = new IPEndPoint(IPAddress.Parse(strList[1]), 11001);
+                Add_to_ipList(_ipList, strList[1]);
+                IPEndPoint ip = new IPEndPoint(IPAddress.Parse(_ipList[_ipList.Count-1]), 11001);
+                foreach (string item in _ipList)
+                {
+                    var row = new ListViewItem(item);
+                    form.Invoke((MethodInvoker)delegate 
+                    {
+                        form.Online.Items.Add(row);
+                        form.Online.Activation = ItemActivation.OneClick;
+                    });
+                }
+                
                 try
                 {
                     _client1.Connect(ip);
@@ -141,34 +149,27 @@ namespace WindowsFormsApp1
                         Thread listenPeer = new Thread(Receive_Peer);
                         listenPeer.IsBackground = true;
                         listenPeer.Start(null);
-                        listen.Abort();
                     }
                 }
                 catch
                 {
-                   // listen.Abort();
-                   //// _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                   // _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                   // IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 11000);
-                   // //Dung lenh nay khi choi trong mang Lan khong day, gateway la 192.168.0.1:
-                   // //IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("192.168.0.103"), 11000);
-                   // try
-                   // {
-                   //     _client.Connect(iPEndPoint);
-                   //     listen = new Thread(Receive);
-                   //     listen.IsBackground = true;
-                   //     listen.Start();
-                   //     //Neu khong ket noi duoc thi Connect 2 lan de server quay lai trang thai khoi dau
-                   //     LoginForm.CallBackToConnect();
-                   //     LoginForm.CallBackToConnect();
-                   // }
-                   // catch (Exception E)
-                   // {
-                   //     MessageBox.Show(E.ToString());
-                   // }
                 }
             }
         }
+
+        private void Add_to_ipList(List<string> ipList, string ip)
+        {
+            string s =ip ;
+            char[] b = { '?' };
+            Int32 count=100;
+            String[] strList = s.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
+            for(int i=0; i <strList.Length; i++)
+            {
+                if (strList[i].Equals(null) == true) break;
+                ipList.Add(strList[i]);
+            }
+        }
+
         /// <summary>
         /// Ham receive khi tro choi bat dau
         /// </summary>

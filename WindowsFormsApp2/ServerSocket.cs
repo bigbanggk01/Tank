@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Data.SqlClient;
 using System.Data;
-using System.Management;
+
 namespace WindowsFormsApp2
 {
     class ServerSocket
@@ -19,12 +19,18 @@ namespace WindowsFormsApp2
         Socket _server;
         string _currentData;
         public List<Socket> _clientList;
+        private List<string> _ipList;
         public const int _buffer = 1024;
         string _ipAdressOfpeer_1 = "";
         string _ipAdressOfpeer_2 = "";
+        /// <summary>
+        /// Run server 
+        /// </summary>
+        /// <returns></returns>
         public bool Start()
         {
             _clientList = new List<Socket>();
+            _ipList = new List<string>();
             _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 11000);
             try 
@@ -48,13 +54,17 @@ namespace WindowsFormsApp2
                 }
                 catch
                 {
-                    MessageBox.Show("Connect 1 lần thôi thằng ngu!");
                 }
             });
             listen.IsBackground = true;
             listen.Start();
             return true;
         }
+        /// <summary>
+        /// Send func
+        /// </summary>
+        /// <param name="data_need_to_be_sent"></param>
+        /// <param name="client"></param>
         public void Send(string data_need_to_be_sent, Socket client)
         {
             try { client.Send(Serialize(data_need_to_be_sent)); }
@@ -63,6 +73,10 @@ namespace WindowsFormsApp2
                 MessageBox.Show(e.ToString(), "Problem", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        /// <summary>
+        /// Reveive function
+        /// </summary>
+        /// <param name="obj"></param>
         public void Receive(object obj)
         {
             Socket client = obj as Socket;
@@ -91,8 +105,7 @@ namespace WindowsFormsApp2
                             data = "0;" + _clientList.IndexOf(client);
                             if ((object)_currentData != null)
                             {
-                                _ipAdressOfpeer_1 = _ipAdressOfpeer_2;
-                                _ipAdressOfpeer_2 = strList[2];
+                                _ipList.Add(strList[2]);
                                 Execute(data);
                             }
                         }
@@ -101,6 +114,11 @@ namespace WindowsFormsApp2
                     {
                         SqlConnection sqlcon = new SqlConnection(@"Data Source=DESKTOP-AB6F94G;Initial Catalog=TankDB;Integrated Security=True");
                         SqlDataAdapter sda = new SqlDataAdapter(strList[1], sqlcon);
+                    }
+
+                    if (strList[0].Equals("disconnect") == true)
+                    {
+
                     }
                     
                 }
@@ -111,6 +129,10 @@ namespace WindowsFormsApp2
                 client.Close();
             }
         }
+        /// <summary>
+        /// Action after data receiving 
+        /// </summary>
+        /// <param name="obj"></param>
         private void Execute(object obj)
         {
             string s = "";
@@ -119,23 +141,40 @@ namespace WindowsFormsApp2
             int[] b = s.Split(';').Select(int.Parse).ToArray();
             
             if (b[0] == 0)
-            {
+            {   
                 if (b[1] % 2 == 0)
                 {
-                    this.Send("2;0", _clientList[b[1]]);
+                    string currentClient= Get_ipList(_ipList);
+                    Send("2;"+currentClient, _clientList[b[1]]);
                 }
                 if (b[1] % 2 != 0)
                 {
-                    if(_clientList[b[1]-1].Connected== false)
+                    string currentClient = Get_ipList(_ipList);
+                    if (_clientList[b[1]-1].Connected== false)
                     {
-                        this.Send("2;0", _clientList[b[1]]);
+                        this.Send("2;" + currentClient, _clientList[b[1]]);
                         _clientList[b[1] - 1] = _clientList[b[1]];
                         _clientList.Remove(_clientList[b[1]]);
                     }
-                    this.Send("1;"+_ipAdressOfpeer_1, _clientList[b[1]]);
+                    this.Send("1;" + currentClient, _clientList[b[1]]);
                 }
             }
         }
+        private string Get_ipList(List<string> ipList)
+        {
+            string output = "";
+            foreach(string item in ipList)
+            {
+                output = item + "?";
+            }
+            return output;
+        }
+
+        /// <summary>
+        /// Serialize and Deserialize
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
         byte[] Serialize(object o)
         {
             MemoryStream ms = new MemoryStream();

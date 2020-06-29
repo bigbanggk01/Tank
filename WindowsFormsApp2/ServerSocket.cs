@@ -19,10 +19,11 @@ namespace WindowsFormsApp2
         Socket _server;
         string _currentData;
         public List<Socket> _clientList;
+        public List<int> _portList;
         private List<string> _ipList;
+        private List<string> _roomList;
+        private List<string> _titleList;
         public const int _buffer = 1024;
-        string _ipAdressOfpeer_1 = "";
-        string _ipAdressOfpeer_2 = "";
         /// <summary>
         /// Run server 
         /// </summary>
@@ -30,7 +31,10 @@ namespace WindowsFormsApp2
         public bool Start()
         {
             _clientList = new List<Socket>();
+            _portList = new List<int>();
             _ipList = new List<string>();
+            _roomList = new List<string>();
+            _titleList = new List<string>();
             _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 11000);
             try 
@@ -106,7 +110,13 @@ namespace WindowsFormsApp2
                             if ((object)_currentData != null)
                             {
                                 _ipList.Add(strList[2]);
-                                Execute(data);
+                                //Execute(data);
+                                string room = "";
+                                foreach(string item in _roomList)
+                                {
+                                    room += item + "....................." + _titleList[_roomList.IndexOf(item)]+ ";";
+                                }
+                                Send("newplayerok;"+room,client);
                             }
                         }
                     }
@@ -119,6 +129,36 @@ namespace WindowsFormsApp2
                     if (strList[0].Equals("disconnect") == true)
                     {
 
+                    }
+
+                    if (strList[0].Equals("binded") == true)
+                    {
+                        _portList.Add(int.Parse(strList[1]));
+                    }
+                    if (strList[0].Equals("joint") == true)
+                    {
+                        int i = 0;
+                        string response = "";
+                        foreach (string item in _roomList)
+                        {
+                            if (item.Equals(strList[1]) == true)
+                            {
+                                response += "joint;"+_ipList[i]+";"+ _portList[i];
+                                Send(response, client);
+                                return;
+                            }
+                            i++;
+                        }
+                    }
+                    if(strList[0].Equals("create") == true)
+                    {
+                        foreach(string item in _roomList)
+                        {
+                            if (item.Equals(strList[1])) return;
+                        }
+                        _roomList.Add(strList[1]);
+                        _titleList.Add(strList[2]);
+                        Send("createok", client);
                     }
                     
                 }
@@ -133,33 +173,33 @@ namespace WindowsFormsApp2
         /// Action after data receiving 
         /// </summary>
         /// <param name="obj"></param>
-        private void Execute(object obj)
-        {
-            string s = "";
-            try { s= (string)obj; }
-            catch { };
-            int[] b = s.Split(';').Select(int.Parse).ToArray();
+        //private void Execute(object obj)
+        //{
+        //    string s = "";
+        //    try { s= (string)obj; }
+        //    catch { };
+        //    int[] b = s.Split(';').Select(int.Parse).ToArray();
             
-            if (b[0] == 0)
-            {   
-                if (b[1] % 2 == 0)
-                {
-                    string currentClient= Get_ipList(_ipList);
-                    Send("2;"+currentClient, _clientList[b[1]]);
-                }
-                if (b[1] % 2 != 0)
-                {
-                    string currentClient = Get_ipList(_ipList);
-                    if (_clientList[b[1]-1].Connected== false)
-                    {
-                        this.Send("2;" + currentClient, _clientList[b[1]]);
-                        _clientList[b[1] - 1] = _clientList[b[1]];
-                        _clientList.Remove(_clientList[b[1]]);
-                    }
-                    this.Send("1;" + currentClient, _clientList[b[1]]);
-                }
-            }
-        }
+        //    if (b[0] == 0)
+        //    {   
+        //        if (b[1] % 2 == 0)
+        //        {
+        //            string currentClient= Get_ipList(_ipList);
+        //            Send("newplayerok1;"+currentClient, _clientList[b[1]]);
+        //        }
+        //        if (b[1] % 2 != 0)
+        //        {
+        //            string currentClient = Get_ipList(_ipList);
+        //            //if (_clientList[b[1]-1].Connected== false)
+        //            //{
+        //            //    this.Send("2;" + currentClient, _clientList[b[1]]);
+        //            //    _clientList[b[1] - 1] = _clientList[b[1]];
+        //            //    _clientList.Remove(_clientList[b[1]]);
+        //            //}
+        //            this.Send("newplayerok2;" + currentClient, _clientList[b[1]]);
+        //        }
+        //    }
+        //}
         private string Get_ipList(List<string> ipList)
         {
             string output = "";

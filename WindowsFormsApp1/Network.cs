@@ -7,8 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using System.Net.NetworkInformation;
-using System.Net.PeerToPeer;
-using System.Data;
+using System.Linq;
 
 namespace WindowsFormsApp1
 {
@@ -20,14 +19,14 @@ namespace WindowsFormsApp1
         public const int _buffer = 1024;
         string _currentData;
         Form1 form;
-        Tank enemyTank;
+        public Tank enemyTank;
         LoginForm LoginForm;
         public Tank myTank;
         public List<Socket> _peerList=new List<Socket>();
         public int _identification;
-        ManualResetEvent completed = new ManualResetEvent(false);
         Thread listen;
         public List<string> _ipList = new List<string>();
+        public List<string> _roomList = new List<string>();
         public void GetForm(Form1 f)
         {
             form = f;
@@ -44,7 +43,6 @@ namespace WindowsFormsApp1
         {
             _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 11000);
-            //IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("192.168.0.103"), 11000);
             try
             {
                 _client.Connect(iPEndPoint);
@@ -67,15 +65,18 @@ namespace WindowsFormsApp1
             _currentData = "";
             try
             {
-                byte[] buffer = new byte[_buffer * 5];
-                _client.Receive(buffer);
-                _currentData = (string)Deserialize(buffer);
-                string data = _currentData as string;
-                if ((object)_currentData != null)
+                while (true) 
                 {
-                    Thread Executor = new Thread(Execute);
-                    Executor.IsBackground = true;
-                    Executor.Start((object)data);
+                    byte[] buffer = new byte[_buffer * 5];
+                    _client.Receive(buffer);
+                    _currentData = (string)Deserialize(buffer);
+                    string data = _currentData as string;
+                    if ((object)_currentData != null)
+                    {
+                        Thread Executor = new Thread(Execute);
+                        Executor.IsBackground = true;
+                        Executor.Start((object)data);
+                    }
                 }
             }
             catch 
@@ -85,88 +86,78 @@ namespace WindowsFormsApp1
         }
         private void Execute(object data)
         {
-            //_client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _client1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             string s = data as string;
             char[] b = { ';' };
             Int32 count = 100;
             String[] strList = s.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
-            
-            if (strList[0].Equals("2")==true )
+            int port = 11001;
+            if (strList[0].Equals("newplayerok")==true )
             {
-                //string IpAdress = GetLocalIP(NetworkInterfaceType.Wireless80211);
                 string IpAdress = GetLocalIP(NetworkInterfaceType.Ethernet);
-                IPEndPoint ip = new IPEndPoint(IPAddress.Parse(IpAdress), 11001);
-                _client1.Bind(ip);
-                myTank = this.GetTank(form.tank1);
-                enemyTank = this.GetTank(form.tank2);
-                _identification = 0;
-                Add_to_ipList(_ipList, strList[1]);
+                while (true) {
+                    try
+                    {
+                        IPEndPoint ip = new IPEndPoint(IPAddress.Parse(IpAdress), port);
+                        _client1.Bind(ip);
+                        break;
+                    }
+                    catch
+                    {
+                        
+                    }
+                    port++;
+                }
+
+                Send("binded;" + port);
                 form.Invoke((MethodInvoker)delegate
                 {
                     form.WindowState = FormWindowState.Maximized;
                     form.ShowInTaskbar = true;
                     LoginForm.Hide();
                 });
-
-                //Cho doi thu
+                foreach (string item in strList)
+                {
+                    if (item.Equals(strList[0]) == true) continue;
+                    form.Invoke((MethodInvoker)delegate
+                    {
+                        form.Room.Items.Add(item);
+                    });
+                }
                 _client1.Listen(1);
                 Socket client_peer = _client1.Accept();
                 _client2 = client_peer;
-
                 Thread listenPeer = new Thread(Receive_Peer);
                 listenPeer.IsBackground = true;
                 listenPeer.Start(client_peer);
             }
-            if (strList[0].Equals("1")==true)
-            {
-                Add_to_ipList(_ipList, strList[1]);
-                IPEndPoint ip = new IPEndPoint(IPAddress.Parse(_ipList[_ipList.Count-1]), 11001);
-                foreach (string item in _ipList)
-                {
-                    var row = new ListViewItem(item);
-                    form.Invoke((MethodInvoker)delegate 
-                    {
-                        form.Online.Items.Add(row);
-                        form.Online.Activation = ItemActivation.OneClick;
-                    });
-                }
-                
-                try
-                {
-                    _client1.Connect(ip);
-                    enemyTank = this.GetTank(form.tank1);
-                    myTank = this.GetTank(form.tank2);
-                    _identification = 1;
-                    form.Invoke((MethodInvoker)delegate
-                    {
-                        form.WindowState = FormWindowState.Maximized;
-                        form.ShowInTaskbar = true;
-                        LoginForm.Hide();
-                    });
-                    if (_client1.Connected == true) 
-                    {
-                        Thread listenPeer = new Thread(Receive_Peer);
-                        listenPeer.IsBackground = true;
-                        listenPeer.Start(null);
-                    }
-                }
-                catch
-                {
-                }
-            }
-        }
 
-        private void Add_to_ipList(List<string> ipList, string ip)
-        {
-            string s =ip ;
-            char[] b = { '?' };
-            Int32 count=100;
-            String[] strList = s.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
-            for(int i=0; i <strList.Length; i++)
+            if (strList[0].Equals("createok") == true)
             {
-                if (strList[i].Equals(null) == true) break;
-                ipList.Add(strList[i]);
+                form.Invoke((MethodInvoker)delegate
+                {
+                    form.RoomName.Dispose();
+                    form.Create.Dispose();
+                    form.Title.Dispose();
+                    form.label1.Dispose();
+                    form.label2.Dispose();
+                });
+                form.StartGame();
+            }
+
+            if (strList[0].Equals("joint") == true)
+            {
+                IPEndPoint ip = new IPEndPoint(IPAddress.Parse(strList[1]), int.Parse(strList[2]));
+                _client1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _client1.Connect(ip);
+                form.Invoke((MethodInvoker)delegate
+                {
+                    form.Room.Dispose();
+                });
+                form.StartGame2();
+                Thread listenPeer = new Thread(Receive_Peer);
+                listenPeer.IsBackground = true;
+                listenPeer.Start(null);
             }
         }
 
@@ -214,7 +205,6 @@ namespace WindowsFormsApp1
             try
             {
                 _client.Send(Serialize(data_need_to_be_sent));
-                completed.Set();
             }
             catch 
             {
@@ -245,10 +235,18 @@ namespace WindowsFormsApp1
         /// <returns></returns>
         byte[] Serialize(object o)
         {
-            MemoryStream ms = new MemoryStream();
-            BinaryFormatter bf = new BinaryFormatter();
-            bf.Serialize(ms, o);
-            return ms.ToArray();
+            try {
+                MemoryStream ms = new MemoryStream();
+                BinaryFormatter bf = new BinaryFormatter();
+                bf.Serialize(ms, o);
+                return ms.ToArray();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+                return null;
+            }
+            
         }
         /// <summary>
         /// Ham dich du lieu tu mang byte thanh 1 object

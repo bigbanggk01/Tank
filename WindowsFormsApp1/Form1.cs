@@ -5,6 +5,8 @@ using System.Net.Sockets;
 using System.Windows.Forms;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.ComponentModel.Design.Serialization;
+using System.Reflection;
 
 namespace WindowsFormsApp1
 {
@@ -19,7 +21,6 @@ namespace WindowsFormsApp1
             int h = Height = screen.Height;// >= screen.Height ? screen.Height : (screen.Height + Height) / 2;
             this.Location = new Point((screen.Width - w) / 2, (screen.Height - h) / 2);
             this.Size = new Size(w, h);
-            
             networker = new Network();
             networker.GetForm(this);
             LoginForm.GetForm(this);
@@ -49,7 +50,6 @@ namespace WindowsFormsApp1
                 networker.Start();
                 this.WindowState = FormWindowState.Maximized;
                 this.ShowInTaskbar = true;
-
             }
         }
         
@@ -64,28 +64,8 @@ namespace WindowsFormsApp1
         public LoginForm LoginForm = new LoginForm();
         ListView ChatBox;
         public ListView Online;
+        public ListView Room;
 
-        private void Form1_Paint(object sender, PaintEventArgs e)
-        {
-            back_ground.Draw(this);
-            tank1.Draw(this);
-            tank1.GetForm(this);
-            tank2.x[0] = 10 + 60;
-            tank2.y[0] = 10 + 30;
-            tank2.x[1] = 9 + 60;
-            tank2.y[1] = 11 + 30;
-            tank2.x[2] = 10 + 60;
-            tank2.y[2] = 11 + 30;
-            tank2.x[3] = 11 + 60;
-            tank2.y[3] = 11 + 30;
-            tank2.x[4] = 9 + 60;
-            tank2.y[4] = 12 + 30;
-            tank2.x[5] = 11 + 60;
-            tank2.y[5] = 12 + 30;
-            tank2.Draw(this);
-            tank2.GetForm(this);
-            map.Draw(this);
-        }
         /// <summary>
         /// Các nút bấm
         /// </summary>
@@ -154,11 +134,7 @@ namespace WindowsFormsApp1
                     {
                         if (textBox1.Text.Equals("") == true) return;
                         EventArgs E = new EventArgs();
-                        textBox1.Hide();
-                        button2.Hide();
                         button2_Click(sender, E);
-                        textBox1.Clear();
-                        textBox1.DisableSelect();
                         networker.Send("6",networker._client1);
                         return;
                     }
@@ -227,22 +203,65 @@ namespace WindowsFormsApp1
             Online.Font = new Font("Lucida Console", 10);
             Online.Anchor = AnchorStyles.Right;
 
+            Room = new ListView();
+            Room.Location = new Point(0, 0);
+            Room.Size = new Size(1500, 500);
+            Room.View = View.List;
+            Room.Font = new Font("Lucida Console", 10);
+            Room.Anchor = AnchorStyles.Right;
+            Room.Click += new System.EventHandler(this.Room_Click);
+
+            Room.View = View.List;
+
             Button SignOut = new Button();
-            SignOut.Location = new Point(this.Width - 200, this.Height - 100);
+            SignOut.Location = new System.Drawing.Point(this.Width - 160, this.Height - 100);
             SignOut.Text = "Sign Out";
-            SignOut.Size = new Size(150, 30);
+            SignOut.Size = new System.Drawing.Size(150, 30);
             SignOut.TabStop = false;
-            SignOut.Font = new Font("Lucida Console", 10);
+            SignOut.Font = new System.Drawing.Font("Lucida Console", 10);
             SignOut.Anchor = AnchorStyles.Bottom;
-            
-           
+            SignOut.Click += new System.EventHandler(this.SignOut_Click);
+
+            Button CreateRoom = new Button();
+            CreateRoom.Location = new Point(this.Width - 160, this.Height - 140);
+            CreateRoom.Text = "New room";
+            CreateRoom.Size = new Size(150, 30);
+            CreateRoom.TabStop = false;
+            CreateRoom.Font = new Font("Lucida Console", 10);
+            CreateRoom.Anchor = AnchorStyles.Bottom;
+            CreateRoom.Click += new System.EventHandler(this.CreateRoom_Click);
+
+            Button Joint = new Button();
+            Joint.Location = new Point(this.Width - 312, this.Height - 100);
+            Joint.Text = "Joint room";
+            Joint.Size = new Size(150, 30);
+            Joint.TabStop = false;
+            Joint.Font = new Font("Lucida Console", 10);
+            Joint.Anchor = AnchorStyles.Bottom;
+            Joint.Click += new System.EventHandler(this.Joint_Click);
+
+            Button Invite = new Button();
+            Invite.Location = new Point(this.Width - 312, this.Height - 140);
+            Invite.Text = "Invite";
+            Invite.Size = new Size(150, 30);
+            Invite.TabStop = false;
+            Invite.Font = new Font("Lucida Console", 10);
+            Invite.Anchor = AnchorStyles.Bottom;
+            Invite.Click += new System.EventHandler(this.Invite_Click);
             //Stop pressing button using keyboard
             SignOut.DisableSelect();
             button2.DisableSelect();
+            CreateRoom.DisableSelect();
+            Joint.DisableSelect();
+            Invite.DisableSelect();
+
+            this.Controls.Add(Invite);
+            this.Controls.Add(Joint);
             this.Controls.Add(SignOut);
             this.Controls.Add(ChatBox);
             this.Controls.Add(Online);
-
+            this.Controls.Add(CreateRoom);
+            this.Controls.Add(Room);
             this.ShowInTaskbar = false;
             this.Hide();
         }    
@@ -368,9 +387,166 @@ namespace WindowsFormsApp1
 
         private void button2_Click(object sender, EventArgs e)
         {
+            textBox1.Hide();
+            button2.Hide();
             var row = new ListViewItem("You: "+textBox1.Text);
+            textBox1.Clear();
+            textBox1.DisableSelect();
             ChatBox.Items.Add(row);
             ChatBox.DisableSelect();
+        }
+
+        private void SignOut_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+        public TextBox RoomName;
+        public Button Create;
+        public TextBox Title;
+        public Label label1;
+        public Label label2;
+        private void CreateRoom_Click(object sender, EventArgs e)
+        {
+            Room.Hide();
+            label1 = new Label();
+            label1.Font = new System.Drawing.Font("Lucida Console", 15);
+            label1.Location = new System.Drawing.Point(10, 100);
+            label1.Text = "Room's name: ";
+            label1.Size = new System.Drawing.Size(200, 20);
+            label1.TabIndex = 0;
+            RoomName = new TextBox();
+            RoomName.Font = new System.Drawing.Font("Lucida Console", 15);
+            RoomName.Location = new System.Drawing.Point(250, 100);
+            RoomName.Multiline = false;
+            RoomName.Name = "RoomName";
+            RoomName.Size = new System.Drawing.Size(1000, 20);
+            RoomName.TabIndex = 0;
+            
+            label2 = new Label();
+            label2.Font = new System.Drawing.Font("Lucida Console", 15);
+            label2.Location = new System.Drawing.Point(10, 150);
+            label2.Text = "Title";
+            label2.Size = new System.Drawing.Size(100, 20);
+            label2.TabIndex = 0;
+            
+            Title = new TextBox();
+            Title.Font = new System.Drawing.Font("Lucida Console", 15);
+            Title.Location = new System.Drawing.Point(250, 150);
+            Title.Multiline = false;
+            Title.Name = "RoomName";
+            Title.Size = new System.Drawing.Size(1000, 20);
+            Title.TabIndex = 0;
+            this.Controls.Add(Title);
+            this.Controls.Add(label2);
+            this.Controls.Add(RoomName);
+            this.Controls.Add(label1);
+            Create = new Button();
+            Create.Location = new Point(1260, 100);
+            Create.Text = "Create";
+            Create.Size = new Size(100, 30);
+            Create.TabStop = false;
+            Create.Font = new Font("Lucida Console", 10);
+            Create.Anchor = AnchorStyles.Bottom;
+            Create.Click += new System.EventHandler(this.Create_Click);
+            Controls.Add(Create);
+            if (RoomName.Text.Equals("") == false) 
+            { 
+                networker.Send("create;"+RoomName.Text+";"+Title.Text); 
+            }            
+        }
+        private void Create_Click(object sender, EventArgs e)
+        {
+            if (RoomName.Text.Equals("") == false)
+            {
+                for(int i=0; i< Room.Items.Count; i++)
+                {
+                    if (Room.Items.ToString().Equals(RoomName.Text) == true)
+                    {
+                        MessageBox.Show("Room name already exists");
+                        return;
+                    }
+                }
+                networker.Send("create;" + RoomName.Text+";"+Title.Text);
+            }
+            else
+            {
+                MessageBox.Show("Room name not entered");
+                return;
+            }
+        }
+        public void StartGame()
+        {
+            Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
+            
+        }
+        public void StartGame2()
+        {
+            Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint2);
+        }
+        private void Joint_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void Invite_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void Room_Click(object sender, EventArgs e)
+        {
+            var firstSelectedItem = Room.SelectedItems[0];
+            char[] b = { '.' };
+            Int32 count = 100;
+            String[] strList = firstSelectedItem.Text.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
+            networker.Send("joint;" + strList[0]);
+        }
+
+        private void Form1_Paint(object sender, PaintEventArgs e)
+        {
+            back_ground.Draw(this);
+            tank1.Draw(this);
+            tank1.GetForm(this);
+            tank2.x[0] = 10 + 60;
+            tank2.y[0] = 10 + 30;
+            tank2.x[1] = 9 + 60;
+            tank2.y[1] = 11 + 30;
+            tank2.x[2] = 10 + 60;
+            tank2.y[2] = 11 + 30;
+            tank2.x[3] = 11 + 60;
+            tank2.y[3] = 11 + 30;
+            tank2.x[4] = 9 + 60;
+            tank2.y[4] = 12 + 30;
+            tank2.x[5] = 11 + 60;
+            tank2.y[5] = 12 + 30;
+            tank2.Draw(this);
+            tank2.GetForm(this);
+            map.Draw(this);
+            networker.myTank = tank1;
+            networker.enemyTank = tank2;
+            networker._identification = 0;
+        }
+        private void Form1_Paint2(object sender, PaintEventArgs e)
+        {
+            back_ground.Draw(this);
+            tank1.Draw(this);
+            tank1.GetForm(this);
+            tank2.x[0] = 10 + 60;
+            tank2.y[0] = 10 + 30;
+            tank2.x[1] = 9 + 60;
+            tank2.y[1] = 11 + 30;
+            tank2.x[2] = 10 + 60;
+            tank2.y[2] = 11 + 30;
+            tank2.x[3] = 11 + 60;
+            tank2.y[3] = 11 + 30;
+            tank2.x[4] = 9 + 60;
+            tank2.y[4] = 12 + 30;
+            tank2.x[5] = 11 + 60;
+            tank2.y[5] = 12 + 30;
+            tank2.Draw(this);
+            tank2.GetForm(this);
+            map.Draw(this);
+            networker.myTank = tank2;
+            networker.enemyTank = tank1;
+            networker._identification = 1;
         }
     }
 

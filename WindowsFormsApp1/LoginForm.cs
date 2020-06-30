@@ -55,5 +55,13 @@ namespace WindowsFormsApp1
             form.networker.Send("Login;" + query + ";" + Local, form.networker._client);
             s = textBox1.Text;
         }
+        public RegistorForm rf;
+        private void button2_Click(object sender, EventArgs e)
+        {
+            rf = new RegistorForm();
+            rf.GetForm(form);
+            form.networker.GetRegisterForm(rf);
+            rf.Show();
+        }
     }
 }

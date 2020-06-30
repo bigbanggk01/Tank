@@ -24,6 +24,7 @@ namespace WindowsFormsApp2
         private List<string> _roomList;
         private List<string> _titleList;
         public const int _buffer = 1024;
+        SqlConnection sqlcon = new SqlConnection(@"Data Source=DESKTOP-AB6F94G;Initial Catalog=TankDB;Integrated Security=True");
         /// <summary>
         /// Run server 
         /// </summary>
@@ -36,6 +37,7 @@ namespace WindowsFormsApp2
             _roomList = new List<string>();
             _titleList = new List<string>();
             _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 11000);
             try 
             { 
@@ -100,30 +102,32 @@ namespace WindowsFormsApp2
 
                     if (strList[0].Equals("Login"))
                     {
-                        SqlConnection sqlcon = new SqlConnection(@"Data Source=DESKTOP-AB6F94G;Initial Catalog=TankDB;Integrated Security=True");
-                        SqlDataAdapter sda = new SqlDataAdapter(strList[1], sqlcon);
-                        DataTable dtbl = new DataTable();
-                        sda.Fill(dtbl);
-                        if (dtbl.Rows.Count == 1)
+                        using(SqlDataAdapter sda = new SqlDataAdapter(strList[1], sqlcon))
                         {
-                            data = "0;" + _clientList.IndexOf(client);
-                            if ((object)_currentData != null)
+                            DataTable dtbl = new DataTable();
+                            sda.Fill(dtbl);
+                            if (dtbl.Rows.Count == 1)
                             {
-                                _ipList.Add(strList[2]);
-                                //Execute(data);
-                                string room = "";
-                                foreach(string item in _roomList)
+                                data = "0;" + _clientList.IndexOf(client);
+                                if ((object)_currentData != null)
                                 {
-                                    room += item + "....................." + _titleList[_roomList.IndexOf(item)]+ ";";
+                                    _ipList.Add(strList[2]);
+                                    //Execute(data);
+                                    string room = "";
+                                    foreach (string item in _roomList)
+                                    {
+                                        room += item + "....................." + _titleList[_roomList.IndexOf(item)] + ";";
+                                    }
+                                    Send("newplayerok;" + room, client);
                                 }
-                                Send("newplayerok;"+room,client);
                             }
                         }
+                        
+                        
                     }
                     if (strList[0].Equals("update")==true)
                     {
-                        SqlConnection sqlcon = new SqlConnection(@"Data Source=DESKTOP-AB6F94G;Initial Catalog=TankDB;Integrated Security=True");
-                        SqlDataAdapter sda = new SqlDataAdapter(strList[1], sqlcon);
+                        
                     }
 
                     if (strList[0].Equals("disconnect") == true)
@@ -160,7 +164,34 @@ namespace WindowsFormsApp2
                         _titleList.Add(strList[2]);
                         Send("createok", client);
                     }
-                    
+                    if (strList[0].Equals("register") == true)
+                    {
+                        int id;
+                        string query = "Select * from Usertable";
+                        using (SqlDataAdapter sda = new SqlDataAdapter(query, sqlcon))
+                        {
+                            DataTable dtbl = new DataTable();
+                            sda.Fill(dtbl);
+                            id = dtbl.Rows.Count + 1;
+                        }
+                        using (SqlDataAdapter sda = new SqlDataAdapter())
+                        {
+                            using(SqlCommand command = new SqlCommand("insert into Usertable(id,username, passwo, tank)"+
+                                "values(@id,@username,@passwo,@tank)",sqlcon))
+                            {
+                                command.Parameters.Add("@id", SqlDbType.Int, id);
+                                command.Parameters["@id"].Value = id;
+                                command.Parameters.AddWithValue("@username", strList[1]);
+                                command.Parameters.AddWithValue("@passwo",strList[2]);
+                                command.Parameters.AddWithValue("@tank", 1);
+                                sda.InsertCommand = command;
+                                sqlcon.Open();
+                                sda.InsertCommand.ExecuteNonQuery();
+                                sqlcon.Close();
+                            }
+                        }
+                        Send("registerok", client);
+                    }
                 }
             }
             catch
@@ -169,37 +200,7 @@ namespace WindowsFormsApp2
                 client.Close();
             }
         }
-        /// <summary>
-        /// Action after data receiving 
-        /// </summary>
-        /// <param name="obj"></param>
-        //private void Execute(object obj)
-        //{
-        //    string s = "";
-        //    try { s= (string)obj; }
-        //    catch { };
-        //    int[] b = s.Split(';').Select(int.Parse).ToArray();
-            
-        //    if (b[0] == 0)
-        //    {   
-        //        if (b[1] % 2 == 0)
-        //        {
-        //            string currentClient= Get_ipList(_ipList);
-        //            Send("newplayerok1;"+currentClient, _clientList[b[1]]);
-        //        }
-        //        if (b[1] % 2 != 0)
-        //        {
-        //            string currentClient = Get_ipList(_ipList);
-        //            //if (_clientList[b[1]-1].Connected== false)
-        //            //{
-        //            //    this.Send("2;" + currentClient, _clientList[b[1]]);
-        //            //    _clientList[b[1] - 1] = _clientList[b[1]];
-        //            //    _clientList.Remove(_clientList[b[1]]);
-        //            //}
-        //            this.Send("newplayerok2;" + currentClient, _clientList[b[1]]);
-        //        }
-        //    }
-        //}
+
         private string Get_ipList(List<string> ipList)
         {
             string output = "";

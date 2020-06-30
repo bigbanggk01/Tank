@@ -27,6 +27,11 @@ namespace WindowsFormsApp1
         Thread listen;
         public List<string> _ipList = new List<string>();
         public List<string> _roomList = new List<string>();
+        RegistorForm registorFrom;
+        public void GetRegisterForm(RegistorForm rf)
+        {
+            registorFrom = rf;
+        }
         public void GetForm(Form1 f)
         {
             form = f;
@@ -158,6 +163,14 @@ namespace WindowsFormsApp1
                 Thread listenPeer = new Thread(Receive_Peer);
                 listenPeer.IsBackground = true;
                 listenPeer.Start(null);
+            }
+            if (strList[0].Equals("registerok") == true)
+            {
+                registorFrom.Invoke((MethodInvoker)delegate
+                {
+                    registorFrom.Close();
+                });
+                MessageBox.Show("Đăng ký thành công, vui chơi thỏa thích :))", "Success", MessageBoxButtons.OK, MessageBoxIcon.None);
             }
         }
 

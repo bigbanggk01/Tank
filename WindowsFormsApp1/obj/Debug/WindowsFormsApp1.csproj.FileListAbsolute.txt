@@ -24,3 +24,4 @@ D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.LoginForm.resource
 D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.BuyForm.resources
 D:\New folder (6)\WindowsFormsApp1\obj\Debug\Interop.NATUPNPLib.dll
 D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.csproj.ResolveComReference.cache
+D:\New folder (6)\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.RegistorForm.resources

@@ -65,7 +65,8 @@ namespace WindowsFormsApp1
         ListView ChatBox;
         public ListView Online;
         public ListView Room;
-
+        Label signal;
+        PictureBox image;
         /// <summary>
         /// Các nút bấm
         /// </summary>
@@ -80,14 +81,14 @@ namespace WindowsFormsApp1
                 {
                     if (textBox1.Visible == true)
                     {
-                        if (textBox1.Text.Equals("") == true) return;
-                        EventArgs E = new EventArgs();
                         textBox1.Hide();
                         button2.Hide();
-                        button2_Click(sender, E);
-                        textBox1.Clear();
-                        textBox1.DisableSelect();
-                        networker.Send("6", networker._client2);
+                        if (textBox1.Text.Equals("") != true) 
+                        {
+                            EventArgs E = new EventArgs();
+                            button2_Click(sender, E); 
+                        }
+                            
                         return;
                     }
                     textBox1.Show();
@@ -99,22 +100,24 @@ namespace WindowsFormsApp1
                 if (e.KeyCode == Keys.Up)
                 {
                     tank1.Go_Up(this,map);
-                    networker.Send("1",networker._client2);
+                    try { networker.Send("press;1", networker._client2); }
+                    catch (Exception D){ MessageBox.Show(D.ToString()); }
+                
                 }
                 if (e.KeyCode == Keys.Down)
                 {
                     tank1.Go_Down(this, map);
-                    networker.Send("2", networker._client2);
+                    networker.Send("press;2", networker._client2);
                 }
                 if (e.KeyCode == Keys.Left)
                 {
                     tank1.Go_Left(this, map);
-                    networker.Send("3", networker._client2);
+                    networker.Send("press;3", networker._client2);
                 }
                 if (e.KeyCode == Keys.Right)
                 {
                     tank1.Go_Right(this, map);
-                    networker.Send("4", networker._client2);
+                    networker.Send("press;4", networker._client2);
                 }
                 
                 if (e.KeyCode == Keys.Space)
@@ -123,7 +126,7 @@ namespace WindowsFormsApp1
                     Bullet b = new Bullet(tank1, this);
                     b.GetForm(this);
                     b.fly(this);
-                    networker.Send("5", networker._client2);
+                    networker.Send("press;5", networker._client2);
                 }
             }
             if (networker._identification == 1)
@@ -134,8 +137,9 @@ namespace WindowsFormsApp1
                     {
                         if (textBox1.Text.Equals("") == true) return;
                         EventArgs E = new EventArgs();
+                        textBox1.Hide();
+                        button2.Hide();
                         button2_Click(sender, E);
-                        networker.Send("6",networker._client1);
                         return;
                     }
                     textBox1.Show();
@@ -146,22 +150,22 @@ namespace WindowsFormsApp1
                 if (e.KeyCode == Keys.Up)
                 {
                     tank2.Go_Up(this, map);
-                    networker.Send("1", networker._client1);
+                    networker.Send("press;1", networker._client1);
                 }
                 if (e.KeyCode == Keys.Down)
                 {
                     tank2.Go_Down(this, map);
-                    networker.Send("2", networker._client1);
+                    networker.Send("press;2", networker._client1);
                 }
                 if (e.KeyCode == Keys.Left)
                 {
                     tank2.Go_Left(this, map);
-                    networker.Send("3", networker._client1);
+                    networker.Send("press;3", networker._client1);
                 }
                 if (e.KeyCode == Keys.Right)
                 {
                     tank2.Go_Right(this, map);
-                    networker.Send("4", networker._client1);
+                    networker.Send("press;4", networker._client1);
                 }
                 if (e.KeyCode == Keys.Space)
                 {
@@ -169,7 +173,7 @@ namespace WindowsFormsApp1
                     Bullet b = new Bullet(tank2, this);
                     b.GetForm(this);
                     b.fly(this);
-                    networker.Send("5", networker._client1);
+                    networker.Send("press;5", networker._client1);
                 }
             }
         }
@@ -204,8 +208,8 @@ namespace WindowsFormsApp1
             Online.Anchor = AnchorStyles.Right;
 
             Room = new ListView();
-            Room.Location = new Point(0, 0);
-            Room.Size = new Size(1500, 500);
+            Room.Location = new Point(290, -9);
+            Room.Size = new Size(1300, 901);
             Room.View = View.List;
             Room.Font = new Font("Lucida Console", 10);
             Room.Anchor = AnchorStyles.Right;
@@ -248,13 +252,32 @@ namespace WindowsFormsApp1
             Invite.Font = new Font("Lucida Console", 10);
             Invite.Anchor = AnchorStyles.Bottom;
             Invite.Click += new System.EventHandler(this.Invite_Click);
+
+            image = new PictureBox();
+            image.Location= new Point(5, 0);
+            image.Size = new Size(300,901);
+            image.Name = "Image";
+            //image.SizeMode = PictureBoxSizeMode.CenterImage;
+            image.ImageLocation = @"image.jpg";
+
+            signal = new Label();
+            signal.Location = new Point(5, 840);
+            signal.Text = "Khuyến mãi 50% giá trị thẻ nạp cho sv UIT";
+            signal.Size = new Size(230, 50);
+            signal.TabStop = false;
+            signal.Font = new Font("Lucida Console", 10);
+            signal.Anchor = AnchorStyles.Bottom;
+
             //Stop pressing button using keyboard
             SignOut.DisableSelect();
             button2.DisableSelect();
             CreateRoom.DisableSelect();
             Joint.DisableSelect();
             Invite.DisableSelect();
+            signal.DisableSelect();
 
+            this.Controls.Add(signal);
+            this.Controls.Add(image);
             this.Controls.Add(Invite);
             this.Controls.Add(Joint);
             this.Controls.Add(SignOut);
@@ -353,9 +376,6 @@ namespace WindowsFormsApp1
                 {
                     e2.Show();
                     e2.Get(this);
-                    Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    client.Connect(IPAddress.Parse("127.0.0.1"), 11000);
-                    //client.Send(Serialize("update;update usertable set tank='0' where username='" + LoginForm.s + "'"));
                 }
                 if (tank2.Died == true)
                 {
@@ -390,8 +410,17 @@ namespace WindowsFormsApp1
             textBox1.Hide();
             button2.Hide();
             var row = new ListViewItem("You: "+textBox1.Text);
+            ChatBox.Items.Add(row);
+            ChatBox.DisableSelect();
+            if (networker._identification == 0) { networker.Send("message;" + textBox1.Text, networker._client2); }
+            else if(networker._identification == 1) { networker.Send("message;" + textBox1.Text, networker._client1); }
             textBox1.Clear();
             textBox1.DisableSelect();
+        }
+
+        public void EnemyChat_Show(string enemyMessage)
+        {
+            var row = new ListViewItem("Enemy: " + enemyMessage);
             ChatBox.Items.Add(row);
             ChatBox.DisableSelect();
         }
@@ -408,6 +437,8 @@ namespace WindowsFormsApp1
         private void CreateRoom_Click(object sender, EventArgs e)
         {
             Room.Hide();
+            image.Dispose();
+            signal.Dispose();
             label1 = new Label();
             label1.Font = new System.Drawing.Font("Lucida Console", 15);
             label1.Location = new System.Drawing.Point(10, 100);
@@ -493,13 +524,24 @@ namespace WindowsFormsApp1
         }
         private void Room_Click(object sender, EventArgs e)
         {
+            Button a = new Button();
+            a.Click += new System.EventHandler(a_click);
+            a_click(sender, e);
             var firstSelectedItem = Room.SelectedItems[0];
             char[] b = { '.' };
             Int32 count = 100;
             String[] strList = firstSelectedItem.Text.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
             networker.Send("joint;" + strList[0]);
         }
+        private void a_click(object sender, EventArgs e)
+        {
 
+        }
+        public void Join_Ok()
+        {
+            image.Dispose();
+            signal.Dispose();
+        }
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this);
@@ -524,6 +566,7 @@ namespace WindowsFormsApp1
             networker.enemyTank = tank2;
             networker._identification = 0;
         }
+
         private void Form1_Paint2(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this);

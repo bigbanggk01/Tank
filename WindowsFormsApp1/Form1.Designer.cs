@@ -69,7 +69,6 @@ namespace WindowsFormsApp1
             this.Name = "Form1";
             this.Text = "Tank_Greate_War";
             this.Load += new System.EventHandler(this.Form1_Load);
-            //this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             this.ResumeLayout(false);
             this.PerformLayout();

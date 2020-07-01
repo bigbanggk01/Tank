@@ -150,20 +150,23 @@ namespace WindowsFormsApp1
                 form.StartGame();
             }
 
-            if (strList[0].Equals("joint") == true)
+            if (strList[0].Equals("jointok") == true)
             {
                 IPEndPoint ip = new IPEndPoint(IPAddress.Parse(strList[1]), int.Parse(strList[2]));
                 _client1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _client1.Connect(ip);
+                
                 form.Invoke((MethodInvoker)delegate
                 {
                     form.Room.Dispose();
+                    form.Join_Ok();
                 });
                 form.StartGame2();
                 Thread listenPeer = new Thread(Receive_Peer);
                 listenPeer.IsBackground = true;
                 listenPeer.Start(null);
             }
+
             if (strList[0].Equals("registerok") == true)
             {
                 registorFrom.Invoke((MethodInvoker)delegate
@@ -197,11 +200,25 @@ namespace WindowsFormsApp1
 
                     _currentData = (string)Deserialize(buffer);
                     string data = _currentData as string;
-                    int instruction = int.Parse(data);
-                    if ((object)_currentData != null)
+                    char[] b = { ';' };
+                    Int32 count = 2;
+                    String[] strList = data.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
+
+                    
+                    if (strList[0].Equals("press"))
                     {
+                        int instruction = int.Parse(strList[1]);
                         form.Enemy_Control(instruction);
                     }
+
+                    if (strList[0].Equals("message"))
+                    {
+                        form.Invoke((MethodInvoker)delegate
+                        {
+                            form.EnemyChat_Show(strList[1]);
+                        });
+                    }
+
                 }
             }
             catch

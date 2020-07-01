@@ -37,13 +37,11 @@ namespace WindowsFormsApp1
         }
         private void LoginForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-
             form.networker.Stop();
             form.Invoke((MethodInvoker)delegate
             {
                 form.Close();
             });
-
         }
         public void CallBackToConnect()
         {

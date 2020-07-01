@@ -147,7 +147,7 @@ namespace WindowsFormsApp2
                         {
                             if (item.Equals(strList[1]) == true)
                             {
-                                response += "joint;"+_ipList[i]+";"+ _portList[i];
+                                response += "jointok;"+_ipList[i]+";"+ _portList[i];
                                 Send(response, client);
                                 return;
                             }
@@ -230,7 +230,6 @@ namespace WindowsFormsApp2
             BinaryFormatter bf = new BinaryFormatter();
             return bf.Deserialize(ms);
         }
-
         public string GetLocalIP(NetworkInterfaceType type)
         {
             string output = "";

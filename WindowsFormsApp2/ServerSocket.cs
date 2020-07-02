@@ -10,19 +10,15 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Data.SqlClient;
 using System.Data;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace WindowsFormsApp2
 {
     class ServerSocket
     {
-        
         Socket _server;
         string _currentData;
-        public List<Socket> _clientList;
-        public List<int> _portList;
-        private List<string> _ipList;
-        private List<string> _roomList;
-        private List<string> _titleList;
+        List<Player> _player;
         public const int _buffer = 1024;
         SqlConnection sqlcon = new SqlConnection(@"Data Source=DESKTOP-AB6F94G;Initial Catalog=TankDB;Integrated Security=True");
         /// <summary>
@@ -31,11 +27,7 @@ namespace WindowsFormsApp2
         /// <returns></returns>
         public bool Start()
         {
-            _clientList = new List<Socket>();
-            _portList = new List<int>();
-            _ipList = new List<string>();
-            _roomList = new List<string>();
-            _titleList = new List<string>();
+            _player= new List<Player>();
             _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 11000);
@@ -52,10 +44,12 @@ namespace WindowsFormsApp2
                     {
                         _server.Listen(2);
                         Socket client = _server.Accept();
-                        _clientList.Add(client);
+                        Player player = new Player();
+                        player.client = client;
+                        _player.Add(player);
                         Thread receive = new Thread(Receive);
                         receive.IsBackground = true;
-                        receive.Start(client);
+                        receive.Start(player);
                     }
                 }
                 catch
@@ -85,130 +79,276 @@ namespace WindowsFormsApp2
         /// <param name="obj"></param>
         public void Receive(object obj)
         {
-            Socket client = obj as Socket;
+            Player player = obj as Player;
             _currentData = "";
             try
             {
                 while (true)
                 {
                     byte[] buffer = new byte[_buffer * 5];
-                    client.Receive(buffer);
-
+                    player.client.Receive(buffer);
                     _currentData = (string)Deserialize(buffer);
                     string data = _currentData as string;
                     char[] b = { ';' };
-                    Int32 count = 3;
+                    Int32 count = 4;
                     String[] strList = data.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
 
                     if (strList[0].Equals("Login"))
                     {
-                        using(SqlDataAdapter sda = new SqlDataAdapter(strList[1], sqlcon))
-                        {
-                            DataTable dtbl = new DataTable();
-                            sda.Fill(dtbl);
-                            if (dtbl.Rows.Count == 1)
-                            {
-                                data = "0;" + _clientList.IndexOf(client);
-                                if ((object)_currentData != null)
-                                {
-                                    _ipList.Add(strList[2]);
-                                    //Execute(data);
-                                    string room = "";
-                                    foreach (string item in _roomList)
-                                    {
-                                        room += item + "....................." + _titleList[_roomList.IndexOf(item)] + ";";
-                                    }
-                                    Send("newplayerok;" + room, client);
-                                }
-                            }
-                        }
-                        
-                        
+                        Make_Player_Online(strList[1],strList[2],strList[3], player);   
                     }
-                    if (strList[0].Equals("update")==true)
+
+                    if (strList[0].Equals("gameover")==true)
                     {
-                        
+                        Update_Match_Result(strList[1],player);
                     }
 
                     if (strList[0].Equals("disconnect") == true)
                     {
-
+                        Handling_Disconnections(strList[1], player);
                     }
 
                     if (strList[0].Equals("binded") == true)
                     {
-                        _portList.Add(int.Parse(strList[1]));
+                        Store_Player_Port(int.Parse(strList[1]), player);
                     }
+
                     if (strList[0].Equals("joint") == true)
                     {
-                        int i = 0;
-                        string response = "";
-                        foreach (string item in _roomList)
-                        {
-                            if (item.Equals(strList[1]) == true)
-                            {
-                                response += "jointok;"+_ipList[i]+";"+ _portList[i];
-                                Send(response, client);
-                                return;
-                            }
-                            i++;
-                        }
+                        Response_Client_Join_Event(strList[1], player);
                     }
+
                     if(strList[0].Equals("create") == true)
                     {
-                        foreach(string item in _roomList)
-                        {
-                            if (item.Equals(strList[1])) return;
-                        }
-                        _roomList.Add(strList[1]);
-                        _titleList.Add(strList[2]);
-                        Send("createok", client);
+                        Add_Room_Made_By_Player(strList[1], strList[2], player);
                     }
+
                     if (strList[0].Equals("register") == true)
                     {
-                        int id;
-                        string query = "Select * from Usertable";
-                        using (SqlDataAdapter sda = new SqlDataAdapter(query, sqlcon))
-                        {
-                            DataTable dtbl = new DataTable();
-                            sda.Fill(dtbl);
-                            id = dtbl.Rows.Count + 1;
-                        }
-                        using (SqlDataAdapter sda = new SqlDataAdapter())
-                        {
-                            using(SqlCommand command = new SqlCommand("insert into Usertable(id,username, passwo, tank)"+
-                                "values(@id,@username,@passwo,@tank)",sqlcon))
-                            {
-                                command.Parameters.Add("@id", SqlDbType.Int, id);
-                                command.Parameters["@id"].Value = id;
-                                command.Parameters.AddWithValue("@username", strList[1]);
-                                command.Parameters.AddWithValue("@passwo",strList[2]);
-                                command.Parameters.AddWithValue("@tank", 1);
-                                sda.InsertCommand = command;
-                                sqlcon.Open();
-                                sda.InsertCommand.ExecuteNonQuery();
-                                sqlcon.Close();
-                            }
-                        }
-                        Send("registerok", client);
+                        Add_New_User(strList[1], strList[2], player);
                     }
                 }
             }
             catch
             {
-                _clientList.Remove(client);
-                client.Close();
+                _player.Remove(player);
+                player.client.Close();
             }
         }
 
-        private string Get_ipList(List<string> ipList)
+        /// <summary>
+        /// Trả lời client khi nó muốn đăng nhập
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="player"></param>
+        private void Make_Player_Online(string strUser,string strPass,string ipUser,Player player) 
         {
-            string output = "";
-            foreach(string item in ipList)
+            string query = "Select * from Usertable Where username = '" + strUser
+                + "' and passwo = '" + strPass + "'";
+            sqlcon.Open();
+            using (SqlDataAdapter sda = new SqlDataAdapter(query, sqlcon))
             {
-                output = item + "?";
+                DataTable dtbl = new DataTable();
+                sda.Fill(dtbl);
+                if (dtbl.Rows.Count == 1)
+                {
+                    player.username = strUser;
+                    if ((object)_currentData != null)
+                    {
+                        _player[_player.IndexOf(player)].ip = ipUser;
+                        string room = "";
+                        foreach (Player item in _player)
+                        {
+                            if (item.Room == null) continue;
+                            if (item.Room.isEmpty == true) 
+                            { 
+                                room += item.Room.name + "....................." + item.Room.title 
+                                    + ".................." + "Waiting enemy;"; 
+                            }
+                            else if(item.Room.isEmpty == false)
+                            {
+                                room += item.Room.name + "....................." + item.Room.title
+                                    + ".................." + "Full;";
+                            }
+                        }
+                        Send("loginok;" + room, player.client);
+                    }
+                }
             }
-            return output;
+            sqlcon.Close();
+        }
+
+        /// <summary>
+        /// Lưu port của client để chuyển tới enemy của nó
+        /// </summary>
+        /// <param name="port"></par
+        private void Store_Player_Port(int port,Player player) 
+        {
+            player.port = port;
+        }
+
+        /// <summary>
+        /// Thêm phòng được tạo ra bởi player vào thuộc tính của nó 
+        /// </summary>
+        /// <param name="strRoom"></param>
+        /// <param name="strTit"></param>
+        /// <param name="player"></param>
+        private void Add_Room_Made_By_Player(string strRoom,string strTit, Player player)
+        {
+            foreach (Player item in _player)
+            {
+                if (item.Room == null) continue;
+                if (item.Room.name.Equals(strRoom) == true) return;
+            }
+            player.Room = new Room();
+            player.Room.name = strRoom;
+            player.Room.title = strTit;
+            player.Room.isEmpty = true;
+            Send("createok", player.client);
+        }
+
+        /// <summary>
+        /// Trả lời client khi client yêu cầu tham gia một phòng
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="player"></param>
+        private void Response_Client_Join_Event(string str, Player player)
+        {
+            int i = 0;
+            string response = "";
+            foreach (Player item in _player)
+            {
+                if (item.Room == null) continue;
+                if (item.Room.name.Equals(str) == true)
+                {
+                    if (item.Room.isEmpty == true) 
+                    {
+                        player.Room = new Room();
+                        player.Room = item.Room;
+                        item.Room.isEmpty = false;
+                        response += "jointok;" + item.ip + ";" + item.port;
+                        Send(response, player.client);
+                        return;
+                    }
+                    else
+                    {
+                        response += "joint0ok";
+                        return;
+                    }
+                }
+                i++;
+            }
+        }
+
+        /// <summary>
+        /// Đăng ký tài khoản
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="player"></param>
+        private void Add_New_User(string username, string password, Player player)
+        {
+            if (isExist(username) == true) 
+            {
+                Send("register0ok", player.client);
+                return;
+            }
+            else if (isExist(username) == false) 
+            {
+                int id;
+                string query = "Select * from Usertable";
+                using (SqlDataAdapter sda = new SqlDataAdapter(query, sqlcon))
+                {
+                    DataTable dtbl = new DataTable();
+                    sda.Fill(dtbl);
+                    id = dtbl.Rows.Count + 1;
+                }
+                using (SqlDataAdapter sda = new SqlDataAdapter())
+                {
+                    using (SqlCommand command = new SqlCommand("insert into Usertable(id,username, passwo, tank)" +
+                        "values(@id,@username,@passwo,@tank)", sqlcon))
+                    {
+                        command.Parameters.Add("@id", SqlDbType.Int, id);
+                        command.Parameters["@id"].Value = id;
+                        command.Parameters.AddWithValue("@username", username);
+                        command.Parameters.AddWithValue("@passwo", password);
+                        command.Parameters.AddWithValue("@tank", 1);
+                        sda.InsertCommand = command;
+                        sqlcon.Open();
+                        sda.InsertCommand.ExecuteNonQuery();
+                        sqlcon.Close();
+                    }
+                }
+                Send("registerok", player.client);
+                return;
+            }
+            
+        }
+
+        /// <summary>
+        /// Cập nhật kẻ thằng người thua
+        /// </summary>        
+        private void Update_Match_Result(string result, Player player)
+        {
+            if (result.Equals("lose") == true) 
+            {
+                try 
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter())
+                    {
+                        using (SqlCommand command = sqlcon.CreateCommand())
+                        {
+                            command.CommandText = "update Usertable set tank = 0 where username = @username";
+                            command.Parameters.AddWithValue("@username", player.username);
+                            sda.UpdateCommand = command;
+                            sqlcon.Open();
+                            sda.UpdateCommand.ExecuteNonQuery();
+                            sqlcon.Close();
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    MessageBox.Show(e.ToString());
+                }
+            }
+            
+        }
+
+        /// <summary>
+        /// Xử lý khi một hoặc nhiều player mất kết nối
+        /// </summary>
+        private void Handling_Disconnections(string str, Player player)
+        {
+            
+        }
+
+        /// <summary>
+        /// Kiểm tra username đã được sử dụng chưa
+        /// </summary>
+        /// <param name="Username"></param>
+        /// <returns></returns>
+        private bool isExist(string Username)
+        {
+            string query = "Select * from Usertable Where username = '" + Username + "'";
+            sqlcon.Open();
+            using (SqlDataAdapter sda = new SqlDataAdapter(query, sqlcon))
+            {
+                DataTable dtbl = new DataTable();
+                sda.Fill(dtbl);
+
+                if (dtbl.Rows.Count == 0)
+                {
+                    sqlcon.Close();
+                    return false;
+                }
+                else 
+                {
+                    sqlcon.Close();
+                    return true;
+                }
+            }
+            
         }
 
         /// <summary>
@@ -248,5 +388,19 @@ namespace WindowsFormsApp2
             }
             return output;
         }
+    }
+    class Player
+    {
+        public string username;
+        public Socket client;
+        public int port;
+        public string ip;
+        public Room Room;
+    }
+    class Room
+    {
+        public string name;
+        public string title;
+        public bool isEmpty;
     }
 }

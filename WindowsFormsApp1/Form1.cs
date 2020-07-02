@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Drawing;
-using System.Net;
-using System.Net.Sockets;
 using System.Windows.Forms;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
-using System.ComponentModel.Design.Serialization;
-using System.Reflection;
-
+using System.Threading;
 namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
@@ -55,18 +51,23 @@ namespace WindowsFormsApp1
         
         public Network networker;
         public Tank tank1 = new Tank();
-        public Tank tank2 = new Tank();
-        Cons back_ground = new Cons();
-        System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
-        public Map map = new Map();
-        EndingForm e = new EndingForm();
-        EndingForm2 e2 = new EndingForm2();
-        public LoginForm LoginForm = new LoginForm();
-        ListView ChatBox;
+        public Tank tank2 = new Tank(2);
         public ListView Online;
         public ListView Room;
+        public Map map = new Map();
+        public LoginForm LoginForm = new LoginForm();
+
+        Cons back_ground = new Cons();
+        System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
+        EndingForm e = new EndingForm();
+        EndingForm2 e2 = new EndingForm2();
+        ListViewNF ChatBox;
         Label signal;
         PictureBox image;
+        Button SignOut;
+        Button CreateRoom;
+        Button Join;
+        Button Invite;
         /// <summary>
         /// Các nút bấm
         /// </summary>
@@ -193,19 +194,22 @@ namespace WindowsFormsApp1
             button2.Anchor = AnchorStyles.Bottom;
             textBox1.Anchor = AnchorStyles.Bottom;
 
-            ChatBox = new ListView();
+            ChatBox = new ListViewNF();
             ChatBox.Location = new Point(this.Width - 320, -9);
             ChatBox.Size = new Size(300, Height - 500);
             ChatBox.View = View.List;
             ChatBox.Font = new Font("Lucida Console", 10);
             ChatBox.Anchor = AnchorStyles.Right;
-
+            ChatBox.BorderStyle = BorderStyle.FixedSingle;
+            ChatBox.CausesValidation = false;
+            
             Online = new ListView();
             Online.Location = new Point(Width - 320, Height-490);
             Online.Size = new Size(300, 353);
             Online.View = View.List;
             Online.Font = new Font("Lucida Console", 10);
             Online.Anchor = AnchorStyles.Right;
+            Online.BorderStyle = BorderStyle.FixedSingle;
 
             Room = new ListView();
             Room.Location = new Point(290, -9);
@@ -214,10 +218,10 @@ namespace WindowsFormsApp1
             Room.Font = new Font("Lucida Console", 10);
             Room.Anchor = AnchorStyles.Right;
             Room.Click += new System.EventHandler(this.Room_Click);
-
             Room.View = View.List;
+            Room.BorderStyle = BorderStyle.FixedSingle;
 
-            Button SignOut = new Button();
+            SignOut = new Button();
             SignOut.Location = new System.Drawing.Point(this.Width - 160, this.Height - 100);
             SignOut.Text = "Sign Out";
             SignOut.Size = new System.Drawing.Size(150, 30);
@@ -225,8 +229,9 @@ namespace WindowsFormsApp1
             SignOut.Font = new System.Drawing.Font("Lucida Console", 10);
             SignOut.Anchor = AnchorStyles.Bottom;
             SignOut.Click += new System.EventHandler(this.SignOut_Click);
+            SignOut.FlatStyle = FlatStyle.Flat;
 
-            Button CreateRoom = new Button();
+            CreateRoom = new Button();
             CreateRoom.Location = new Point(this.Width - 160, this.Height - 140);
             CreateRoom.Text = "New room";
             CreateRoom.Size = new Size(150, 30);
@@ -234,17 +239,18 @@ namespace WindowsFormsApp1
             CreateRoom.Font = new Font("Lucida Console", 10);
             CreateRoom.Anchor = AnchorStyles.Bottom;
             CreateRoom.Click += new System.EventHandler(this.CreateRoom_Click);
+            CreateRoom.FlatStyle = FlatStyle.Flat;
 
-            Button Joint = new Button();
-            Joint.Location = new Point(this.Width - 312, this.Height - 100);
-            Joint.Text = "Joint room";
-            Joint.Size = new Size(150, 30);
-            Joint.TabStop = false;
-            Joint.Font = new Font("Lucida Console", 10);
-            Joint.Anchor = AnchorStyles.Bottom;
-            Joint.Click += new System.EventHandler(this.Joint_Click);
-
-            Button Invite = new Button();
+            Join = new Button();
+            Join.Location = new Point(this.Width - 312, this.Height - 100);
+            Join.Text = "Joint room";
+            Join.Size = new Size(150, 30);
+            Join.TabStop = false;
+            Join.Font = new Font("Lucida Console", 10);
+            Join.Anchor = AnchorStyles.Bottom;
+            Join.Click += new System.EventHandler(this.Joint_Click);
+            Join.FlatStyle = FlatStyle.Flat;
+            Invite = new Button();
             Invite.Location = new Point(this.Width - 312, this.Height - 140);
             Invite.Text = "Invite";
             Invite.Size = new Size(150, 30);
@@ -252,7 +258,9 @@ namespace WindowsFormsApp1
             Invite.Font = new Font("Lucida Console", 10);
             Invite.Anchor = AnchorStyles.Bottom;
             Invite.Click += new System.EventHandler(this.Invite_Click);
+            Invite.FlatStyle = FlatStyle.Flat;
 
+            CreateRoom.FlatStyle = FlatStyle.Flat;
             image = new PictureBox();
             image.Location= new Point(5, 0);
             image.Size = new Size(300,901);
@@ -272,14 +280,14 @@ namespace WindowsFormsApp1
             SignOut.DisableSelect();
             button2.DisableSelect();
             CreateRoom.DisableSelect();
-            Joint.DisableSelect();
+            Join.DisableSelect();
             Invite.DisableSelect();
             signal.DisableSelect();
 
             this.Controls.Add(signal);
             this.Controls.Add(image);
             this.Controls.Add(Invite);
-            this.Controls.Add(Joint);
+            this.Controls.Add(Join);
             this.Controls.Add(SignOut);
             this.Controls.Add(ChatBox);
             this.Controls.Add(Online);
@@ -374,11 +382,13 @@ namespace WindowsFormsApp1
             {
                 if (tank1.Died == true)
                 {
+                    networker.Send("gameover;lose");
                     e2.Show();
                     e2.Get(this);
                 }
                 if (tank2.Died == true)
                 {
+                    networker.Send("gameover;win");
                     e.Show();
                     e.Get(this);
                 }
@@ -387,11 +397,13 @@ namespace WindowsFormsApp1
             {
                 if (tank1.Died == true)
                 {
+                    networker.Send("gameover;win");
                     e.Show();
                     e.Get(this);
                 }
                 if (tank2.Died == true)
                 {
+                    networker.Send("gameover;lose");
                     e2.Show();
                     e2.Get(this);
                 }
@@ -410,10 +422,13 @@ namespace WindowsFormsApp1
             textBox1.Hide();
             button2.Hide();
             var row = new ListViewItem("You: "+textBox1.Text);
+            ChatBox.BeginUpdate();
             ChatBox.Items.Add(row);
             ChatBox.DisableSelect();
+            ChatBox.EndUpdate();
             if (networker._identification == 0) { networker.Send("message;" + textBox1.Text, networker._client2); }
             else if(networker._identification == 1) { networker.Send("message;" + textBox1.Text, networker._client1); }
+            
             textBox1.Clear();
             textBox1.DisableSelect();
         }
@@ -452,6 +467,7 @@ namespace WindowsFormsApp1
             RoomName.Name = "RoomName";
             RoomName.Size = new System.Drawing.Size(1000, 20);
             RoomName.TabIndex = 0;
+            RoomName.BorderStyle = BorderStyle.FixedSingle;
             
             label2 = new Label();
             label2.Font = new System.Drawing.Font("Lucida Console", 15);
@@ -467,6 +483,8 @@ namespace WindowsFormsApp1
             Title.Name = "RoomName";
             Title.Size = new System.Drawing.Size(1000, 20);
             Title.TabIndex = 0;
+            Title.BorderStyle = BorderStyle.FixedSingle;
+
             this.Controls.Add(Title);
             this.Controls.Add(label2);
             this.Controls.Add(RoomName);
@@ -478,6 +496,7 @@ namespace WindowsFormsApp1
             Create.TabStop = false;
             Create.Font = new Font("Lucida Console", 10);
             Create.Anchor = AnchorStyles.Bottom;
+            Create.FlatStyle = FlatStyle.Flat;
             Create.Click += new System.EventHandler(this.Create_Click);
             Controls.Add(Create);
             if (RoomName.Text.Equals("") == false) 
@@ -504,15 +523,16 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Room name not entered");
                 return;
             }
+            CreateRoom.Enabled = false;
         }
         public void StartGame()
         {
-            Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
             
         }
         public void StartGame2()
         {
-            Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint2);
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint2);
         }
         private void Joint_Click(object sender, EventArgs e)
         {
@@ -524,41 +544,22 @@ namespace WindowsFormsApp1
         }
         private void Room_Click(object sender, EventArgs e)
         {
-            Button a = new Button();
-            a.Click += new System.EventHandler(a_click);
-            a_click(sender, e);
             var firstSelectedItem = Room.SelectedItems[0];
             char[] b = { '.' };
             Int32 count = 100;
             String[] strList = firstSelectedItem.Text.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
             networker.Send("joint;" + strList[0]);
         }
-        private void a_click(object sender, EventArgs e)
-        {
-
-        }
         public void Join_Ok()
         {
             image.Dispose();
             signal.Dispose();
         }
-        private void Form1_Paint(object sender, PaintEventArgs e)
+        public void Form1_Paint(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this);
             tank1.Draw(this);
             tank1.GetForm(this);
-            tank2.x[0] = 10 + 60;
-            tank2.y[0] = 10 + 30;
-            tank2.x[1] = 9 + 60;
-            tank2.y[1] = 11 + 30;
-            tank2.x[2] = 10 + 60;
-            tank2.y[2] = 11 + 30;
-            tank2.x[3] = 11 + 60;
-            tank2.y[3] = 11 + 30;
-            tank2.x[4] = 9 + 60;
-            tank2.y[4] = 12 + 30;
-            tank2.x[5] = 11 + 60;
-            tank2.y[5] = 12 + 30;
             tank2.Draw(this);
             tank2.GetForm(this);
             map.Draw(this);
@@ -567,23 +568,11 @@ namespace WindowsFormsApp1
             networker._identification = 0;
         }
 
-        private void Form1_Paint2(object sender, PaintEventArgs e)
+        public void Form1_Paint2(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this);
             tank1.Draw(this);
             tank1.GetForm(this);
-            tank2.x[0] = 10 + 60;
-            tank2.y[0] = 10 + 30;
-            tank2.x[1] = 9 + 60;
-            tank2.y[1] = 11 + 30;
-            tank2.x[2] = 10 + 60;
-            tank2.y[2] = 11 + 30;
-            tank2.x[3] = 11 + 60;
-            tank2.y[3] = 11 + 30;
-            tank2.x[4] = 9 + 60;
-            tank2.y[4] = 12 + 30;
-            tank2.x[5] = 11 + 60;
-            tank2.y[5] = 12 + 30;
             tank2.Draw(this);
             tank2.GetForm(this);
             map.Draw(this);
@@ -592,5 +581,25 @@ namespace WindowsFormsApp1
             networker._identification = 1;
         }
     }
+    class ListViewNF : System.Windows.Forms.ListView
+    {
+        public ListViewNF()
+        {
+            //Activate double buffering
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
 
+            //Enable the OnNotifyMessage event so we get a chance to filter out 
+            // Windows messages before they get to the form's WndProc
+            this.SetStyle(ControlStyles.EnableNotifyMessage, true);
+        }
+
+        protected override void OnNotifyMessage(Message m)
+        {
+            //Filter out the WM_ERASEBKGND message
+            if (m.Msg != 0x14)
+            {
+                base.OnNotifyMessage(m);
+            }
+        }
+    }
 }

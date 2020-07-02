@@ -46,7 +46,23 @@ namespace WindowsFormsApp1
             x[5] = 11;
             y[5] = 12;
         }
-        
+        public Tank(int a)
+        {
+            x = new int[6];
+            y = new int[6];
+            x[0] = 10 + 60;
+            y[0] = 10 + 30;
+            x[1] = 9 + 60;
+            y[1] = 11 + 30;
+            x[2] = 10 + 60;
+            y[2] = 11 + 30;
+            x[3] = 11 + 60;
+            y[3] = 11 + 30;
+            x[4] = 9 + 60;
+            y[4] = 12 + 30;
+            x[5] = 11 + 60;
+            y[5] = 12 + 30;
+        }
         public void Draw(Form f)
         {
             Pen p = new Pen(Color.Black);
@@ -58,8 +74,6 @@ namespace WindowsFormsApp1
             g.FillRectangle(new SolidBrush(Color.Black), x[3] * 20 + 1, y[3] * 20 + 1, 18, 18);
             g.FillRectangle(new SolidBrush(Color.Black), x[4] * 20 + 1, y[4] * 20 + 1, 18, 18);
             g.FillRectangle(new SolidBrush(Color.Black), x[5] * 20 + 1, y[5] * 20 + 1, 18, 18);
-            g.Dispose();
-            sb.Dispose();
         }
         /// <summary>
         /// Chuyển thành hướng lên
@@ -79,7 +93,6 @@ namespace WindowsFormsApp1
                 y[4]++;
                 x[5] += 2;
                 y[5]++;
-
             }
             if (_direction == 2)
             {
@@ -91,7 +104,6 @@ namespace WindowsFormsApp1
                 x[3]++;
                 y[3]++;
                 y[5] += 2;
-                
             }
             if (_direction == -2)
             {
@@ -123,7 +135,6 @@ namespace WindowsFormsApp1
                 y[1] -= 2;
                 y[3] += 2;
                 y[5] += 2;
-                
             }
             if (_direction == 1)
             {
@@ -282,8 +293,6 @@ namespace WindowsFormsApp1
 
                 }
             }
-            g.Dispose();
-            sb.Dispose();
         }
         public void Go_Down(Form f,Map m)
         {
@@ -313,8 +322,6 @@ namespace WindowsFormsApp1
                     g.FillRectangle((new SolidBrush(Color.Black)), x[i] * 20 + 1, y[i] * 20 + 1, 18, 18);
                 }
             }
-            g.Dispose();
-            sb.Dispose();
         }
         public void Go_Right(Form f,Map m)
         {
@@ -343,8 +350,6 @@ namespace WindowsFormsApp1
                     g.FillRectangle((new SolidBrush(Color.Black)), x[i] * 20 + 1, y[i] * 20 + 1, 18, 18);
                 }
             }
-            g.Dispose();
-            sb.Dispose();
         }
         public void Go_Left(Form f, Map m)
         {
@@ -378,8 +383,6 @@ namespace WindowsFormsApp1
                     g.FillRectangle((new SolidBrush(Color.Black)), x[i] * 20 + 1, y[i] * 20 + 1, 18, 18);
                 }
             }
-            g.Dispose();
-            sb.Dispose();
         }
         
         /// <summary>
@@ -422,13 +425,5 @@ namespace WindowsFormsApp1
                 ) { return true; }
             else { return false; }
         }
-        //public void Tank_damged(Bullet b)
-        //{
-        //    if (this.isTank(b.bulletX, b.bulletY) == true)
-        //    {
-        //        form.Game_Over();
-        //    }
-        //    else return;
-        //}
     }
 }

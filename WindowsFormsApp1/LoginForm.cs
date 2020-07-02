@@ -20,12 +20,12 @@ namespace WindowsFormsApp1
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            string query = "Select * from Usertable Where username = '" + textBox1.Text.Trim()
-                + "' and passwo = '" + textBox2.Text.Trim()+"'";
+            //string query = "Select * from Usertable Where username = '" + textBox1.Text.Trim()
+            //    + "' and passwo = '" + textBox2.Text.Trim()+"'";
             //NetworkInterfaceType type = NetworkInterfaceType.Wireless80211;
             NetworkInterfaceType type = NetworkInterfaceType.Ethernet;
             string Local = form.networker.GetLocalIP(type);
-            form.networker.Send("Login;"+ query+";"+Local);
+            form.networker.Send("Login;"+ textBox1.Text.Trim()+";"+textBox2.Text.Trim()+";"+Local);
             form.networker.GetLogin(this);
             s = textBox1.Text;
             Thread.Sleep(500);

@@ -38,7 +38,11 @@ namespace WindowsFormsApp1
             // 
             // textBox1
             // 
-            this.textBox1.Font = new System.Drawing.Font("Segoe Print", 13.8F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox1.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBox1.Font = new System.Drawing.Font("Segoe Print", 13.8F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox1.HideSelection = false;
+            this.textBox1.ImeMode = System.Windows.Forms.ImeMode.Off;
             this.textBox1.Location = new System.Drawing.Point(12, 889);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
@@ -47,6 +51,8 @@ namespace WindowsFormsApp1
             // 
             // button2
             // 
+            this.button2.CausesValidation = false;
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.Location = new System.Drawing.Point(1210, 889);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(114, 40);
@@ -59,6 +65,7 @@ namespace WindowsFormsApp1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.ClientSize = new System.Drawing.Size(1902, 983);
             this.Controls.Add(this.button2);
@@ -77,9 +84,8 @@ namespace WindowsFormsApp1
 
 
         #endregion
-
-        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button button2;
+        private TextBox textBox1;
     }
 }
 

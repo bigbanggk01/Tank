@@ -21,12 +21,5 @@ namespace WindowsFormsApp2
             server = new ServerSocket();
             server.Start();
         }
-        private void button2_Click(object sender, EventArgs e)
-        {
-            foreach(Socket item in server._clientList)
-            {
-                server.Send("hello",item);
-            }
-        }
     }
 }

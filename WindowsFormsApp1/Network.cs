@@ -8,6 +8,8 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Net.NetworkInformation;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
+using System.Drawing;
 
 namespace WindowsFormsApp1
 {
@@ -97,7 +99,7 @@ namespace WindowsFormsApp1
             Int32 count = 100;
             String[] strList = s.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
             int port = 11001;
-            if (strList[0].Equals("newplayerok")==true )
+            if (strList[0].Equals("loginok")==true )
             {
                 string IpAdress = GetLocalIP(NetworkInterfaceType.Ethernet);
                 while (true) {
@@ -109,7 +111,6 @@ namespace WindowsFormsApp1
                     }
                     catch
                     {
-                        
                     }
                     port++;
                 }
@@ -146,8 +147,9 @@ namespace WindowsFormsApp1
                     form.Title.Dispose();
                     form.label1.Dispose();
                     form.label2.Dispose();
+                    form.Paint += new PaintEventHandler(form.Form1_Paint);
                 });
-                form.StartGame();
+                //form.StartGame();
             }
 
             if (strList[0].Equals("jointok") == true)
@@ -160,8 +162,9 @@ namespace WindowsFormsApp1
                 {
                     form.Room.Dispose();
                     form.Join_Ok();
+                    form.Paint += new PaintEventHandler(form.Form1_Paint2);
                 });
-                form.StartGame2();
+                
                 Thread listenPeer = new Thread(Receive_Peer);
                 listenPeer.IsBackground = true;
                 listenPeer.Start(null);
@@ -174,6 +177,10 @@ namespace WindowsFormsApp1
                     registorFrom.Close();
                 });
                 MessageBox.Show("Đăng ký thành công, vui chơi thỏa thích :))", "Success", MessageBoxButtons.OK, MessageBoxIcon.None);
+            }
+            if(strList[0].Equals("register0ok") == true)
+            {
+                MessageBox.Show("Tên đăng nhập đã tồn tại, vui lòng dùng tên khác.", "Can not register", MessageBoxButtons.OK, MessageBoxIcon.None);
             }
         }
 

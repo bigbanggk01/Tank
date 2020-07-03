@@ -1,2 +1,2 @@
 # Tank
-abcd
+Open server socket before run form1 

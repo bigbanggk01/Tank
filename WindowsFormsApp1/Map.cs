@@ -102,13 +102,32 @@ namespace WindowsFormsApp1
                 Bit_map[20, i] = 1;
             }
         }
+        public void Draw(Form f,PaintEventArgs e)
+        {
+            p = new Pen(Color.Black);
+            sb = new SolidBrush(Color.Black);
+            //g = f.CreateGraphics();
+           
+            for(int i =0;i<80;i++)
+                for(int j = 0; j < 80; j++)
+                {
+                    if (Bit_map[i, j] == 1)
+                    {
+                        e.Graphics.FillRectangle(sb, i * 20 + 1, j * 20 + 1, 18, 18);
+                    }
+                }
+            //g.Dispose();
+            p.Dispose();
+            sb.Dispose();
+        }
         public void Draw(Form f)
         {
             p = new Pen(Color.Black);
             sb = new SolidBrush(Color.Black);
             g = f.CreateGraphics();
-            for(int i =0;i<80;i++)
-                for(int j = 0; j < 80; j++)
+
+            for (int i = 0; i < 80; i++)
+                for (int j = 0; j < 80; j++)
                 {
                     if (Bit_map[i, j] == 1)
                     {

@@ -63,6 +63,18 @@ namespace WindowsFormsApp1
             x[5] = 11 + 60;
             y[5] = 12 + 30;
         }
+        public void Draw(Form f,PaintEventArgs e)
+        {
+            Pen p = new Pen(Color.Black);
+            SolidBrush sb = new SolidBrush(Color.White);
+            //Graphics g = f.CreateGraphics();
+            e.Graphics.FillRectangle(new SolidBrush(Color.Black), x[0] * 20 + 1, y[0] * 20 + 1, 18, 18);
+            e.Graphics.FillRectangle(new SolidBrush(Color.Black), x[1] * 20 + 1, y[1] * 20 + 1, 18, 18);
+            e.Graphics.FillRectangle(new SolidBrush(Color.Black), x[2] * 20 + 1, y[2] * 20 + 1, 18, 18);
+            e.Graphics.FillRectangle(new SolidBrush(Color.Black), x[3] * 20 + 1, y[3] * 20 + 1, 18, 18);
+            e.Graphics.FillRectangle(new SolidBrush(Color.Black), x[4] * 20 + 1, y[4] * 20 + 1, 18, 18);
+            e.Graphics.FillRectangle(new SolidBrush(Color.Black), x[5] * 20 + 1, y[5] * 20 + 1, 18, 18);
+        }
         public void Draw(Form f)
         {
             Pen p = new Pen(Color.Black);

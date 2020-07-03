@@ -37,7 +37,6 @@ namespace WindowsFormsApp1
             timer = new Timer();
             timer.Tick += new System.EventHandler(t_tick);
             timer.Interval = 20;
-            map.Draw(form);
         }
         /// <summary>
         /// Mỗi viên đạn gắn với 1 timer

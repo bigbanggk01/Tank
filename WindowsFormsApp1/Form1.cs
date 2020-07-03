@@ -21,6 +21,7 @@ namespace WindowsFormsApp1
             networker.GetForm(this);
             LoginForm.GetForm(this);
             LoginForm.Show();
+
         }
         public Form1(int a) 
         {
@@ -62,8 +63,8 @@ namespace WindowsFormsApp1
         EndingForm e = new EndingForm();
         EndingForm2 e2 = new EndingForm2();
         ListViewNF ChatBox;
-        Label signal;
-        PictureBox image;
+        public Label signal;
+        public PictureBox image;
         Button SignOut;
         Button CreateRoom;
         Button Join;
@@ -428,7 +429,6 @@ namespace WindowsFormsApp1
             ChatBox.EndUpdate();
             if (networker._identification == 0) { networker.Send("message;" + textBox1.Text, networker._client2); }
             else if(networker._identification == 1) { networker.Send("message;" + textBox1.Text, networker._client1); }
-            
             textBox1.Clear();
             textBox1.DisableSelect();
         }
@@ -442,6 +442,7 @@ namespace WindowsFormsApp1
 
         private void SignOut_Click(object sender, EventArgs e)
         {
+            networker.Send("disconnect");
             this.Close();
         }
         public TextBox RoomName;
@@ -516,7 +517,15 @@ namespace WindowsFormsApp1
                         return;
                     }
                 }
-                networker.Send("create;" + RoomName.Text+";"+Title.Text);
+                string s = "create;" + RoomName.Text + ";" + Title.Text;
+                RoomName.Dispose();
+                label1.Dispose();
+                label2.Dispose();
+                Title.Dispose();
+                Create.Dispose();
+                MessageBox.Show("Waiting enemy!");
+                networker.Send(s);
+                
             }
             else
             {
@@ -526,36 +535,6 @@ namespace WindowsFormsApp1
             CreateRoom.Enabled = false;
         }
         public void StartGame()
-        {
-            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
-            
-        }
-        public void StartGame2()
-        {
-            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint2);
-        }
-        private void Joint_Click(object sender, EventArgs e)
-        {
-
-        }
-        private void Invite_Click(object sender, EventArgs e)
-        {
-
-        }
-        private void Room_Click(object sender, EventArgs e)
-        {
-            var firstSelectedItem = Room.SelectedItems[0];
-            char[] b = { '.' };
-            Int32 count = 100;
-            String[] strList = firstSelectedItem.Text.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
-            networker.Send("joint;" + strList[0]);
-        }
-        public void Join_Ok()
-        {
-            image.Dispose();
-            signal.Dispose();
-        }
-        public void Form1_Paint(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this);
             tank1.Draw(this);
@@ -567,15 +546,59 @@ namespace WindowsFormsApp1
             networker.enemyTank = tank2;
             networker._identification = 0;
         }
-
-        public void Form1_Paint2(object sender, PaintEventArgs e)
+        public void StartGame2()
         {
             back_ground.Draw(this);
-            tank1.Draw(this);
+            tank1.Draw(this );
             tank1.GetForm(this);
             tank2.Draw(this);
             tank2.GetForm(this);
             map.Draw(this);
+            networker.myTank = tank2;
+            networker.enemyTank = tank1;
+            networker._identification = 1;
+        }
+        private void Joint_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void Invite_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void Room_Click(object sender, EventArgs e)
+        {
+            image.Dispose();
+            signal.Dispose();
+            string s = Room.SelectedItems[0].Text;
+            Room.Dispose();
+            
+            char[] b = { '.' };
+            Int32 count = 100;
+            String[] strList = s.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
+            networker.Send("joint;" + strList[0]);
+        }
+        public void Form1_Paint(object sender, PaintEventArgs e)
+        {
+            back_ground.Draw(this,e);
+            tank1.Draw(this,e);
+            tank1.GetForm(this);
+            tank2.Draw(this,e);
+            tank2.GetForm(this);
+            map.Draw(this,e);
+            networker.myTank = tank1;
+            networker.enemyTank = tank2;
+            networker._identification = 0;
+        }
+
+        public void Form1_Paint2(object sender, PaintEventArgs e)
+        {
+            back_ground.Draw(this,e);
+            tank1.Draw(this,e);
+            tank1.GetForm(this);
+            tank2.Draw(this,e);
+            tank2.GetForm(this);
+            map.Draw(this,e);
             networker.myTank = tank2;
             networker.enemyTank = tank1;
             networker._identification = 1;

@@ -176,6 +176,18 @@ namespace WindowsFormsApp2
                 }
             }
             sqlcon.Close();
+            using (SqlDataAdapter sda = new SqlDataAdapter())
+            {
+                using (SqlCommand command = sqlcon.CreateCommand())
+                {
+                    command.CommandText = "update Usertable set status = 1 where username = @username";
+                    command.Parameters.AddWithValue("@username", player.username);
+                    sda.UpdateCommand = command;
+                    sqlcon.Open();
+                    sda.UpdateCommand.ExecuteNonQuery();
+                    sqlcon.Close();
+                }
+            }
         }
 
         /// <summary>
@@ -265,18 +277,26 @@ namespace WindowsFormsApp2
                 }
                 using (SqlDataAdapter sda = new SqlDataAdapter())
                 {
-                    using (SqlCommand command = new SqlCommand("insert into Usertable(id,username, passwo, tank)" +
-                        "values(@id,@username,@passwo,@tank)", sqlcon))
+                    using (SqlCommand command = new SqlCommand("insert into Usertable(id,username, passwo, tank, status)" +
+                        "values(@id,@username,@passwo,@tank,@status)", sqlcon))
                     {
-                        command.Parameters.Add("@id", SqlDbType.Int, id);
-                        command.Parameters["@id"].Value = id;
-                        command.Parameters.AddWithValue("@username", username);
-                        command.Parameters.AddWithValue("@passwo", password);
-                        command.Parameters.AddWithValue("@tank", 1);
-                        sda.InsertCommand = command;
-                        sqlcon.Open();
-                        sda.InsertCommand.ExecuteNonQuery();
-                        sqlcon.Close();
+                        try 
+                        {
+                            command.Parameters.Add("@id", SqlDbType.Int, id);
+                            command.Parameters["@id"].Value = id;
+                            command.Parameters.AddWithValue("@username", username);
+                            command.Parameters.AddWithValue("@passwo", password);
+                            command.Parameters.AddWithValue("@tank", 1);
+                            command.Parameters.AddWithValue("@status", 0);
+                            sda.InsertCommand = command;
+                            sqlcon.Open();
+                            sda.InsertCommand.ExecuteNonQuery();
+                            sqlcon.Close();
+                        }
+                        catch(Exception e)
+                        {
+                            MessageBox.Show(e.ToString());
+                        }  
                     }
                 }
                 Send("registerok", player.client);
@@ -320,7 +340,18 @@ namespace WindowsFormsApp2
         /// </summary>
         private void Handling_Disconnections(string str, Player player)
         {
-            
+            using (SqlDataAdapter sda = new SqlDataAdapter())
+            {
+                using (SqlCommand command = sqlcon.CreateCommand())
+                {
+                    command.CommandText = "update Usertable set status = 0 where username = @username";
+                    command.Parameters.AddWithValue("@username", player.username);
+                    sda.UpdateCommand = command;
+                    sqlcon.Open();
+                    sda.UpdateCommand.ExecuteNonQuery();
+                    sqlcon.Close();
+                }
+            }
         }
 
         /// <summary>

@@ -7,9 +7,6 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using System.Net.NetworkInformation;
-using System.Linq;
-using System.Runtime.Remoting.Channels;
-using System.Drawing;
 
 namespace WindowsFormsApp1
 {
@@ -142,14 +139,9 @@ namespace WindowsFormsApp1
             {
                 form.Invoke((MethodInvoker)delegate
                 {
-                    form.RoomName.Dispose();
-                    form.Create.Dispose();
-                    form.Title.Dispose();
-                    form.label1.Dispose();
-                    form.label2.Dispose();
+                    form.StartGame();
                     form.Paint += new PaintEventHandler(form.Form1_Paint);
                 });
-                //form.StartGame();
             }
 
             if (strList[0].Equals("jointok") == true)
@@ -160,8 +152,7 @@ namespace WindowsFormsApp1
                 
                 form.Invoke((MethodInvoker)delegate
                 {
-                    form.Room.Dispose();
-                    form.Join_Ok();
+                    form.StartGame2();
                     form.Paint += new PaintEventHandler(form.Form1_Paint2);
                 });
                 

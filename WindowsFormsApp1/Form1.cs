@@ -66,9 +66,9 @@ namespace WindowsFormsApp1
         public Label signal;
         public PictureBox image;
         Button SignOut;
-        Button CreateRoom;
-        Button Join;
-        Button Invite;
+        public Button CreateRoom;
+        public Button Join;
+        public Button Invite;
         /// <summary>
         /// Các nút bấm
         /// </summary>
@@ -249,7 +249,7 @@ namespace WindowsFormsApp1
             Join.TabStop = false;
             Join.Font = new Font("Lucida Console", 10);
             Join.Anchor = AnchorStyles.Bottom;
-            Join.Click += new System.EventHandler(this.Joint_Click);
+            Join.Click += new System.EventHandler(this.Join_Click);
             Join.FlatStyle = FlatStyle.Flat;
             Invite = new Button();
             Invite.Location = new Point(this.Width - 312, this.Height - 140);
@@ -260,6 +260,7 @@ namespace WindowsFormsApp1
             Invite.Anchor = AnchorStyles.Bottom;
             Invite.Click += new System.EventHandler(this.Invite_Click);
             Invite.FlatStyle = FlatStyle.Flat;
+            Invite.Enabled = false;
 
             CreateRoom.FlatStyle = FlatStyle.Flat;
             image = new PictureBox();
@@ -442,7 +443,6 @@ namespace WindowsFormsApp1
 
         private void SignOut_Click(object sender, EventArgs e)
         {
-            networker.Send("disconnect");
             this.Close();
         }
         public TextBox RoomName;
@@ -523,9 +523,7 @@ namespace WindowsFormsApp1
                 label2.Dispose();
                 Title.Dispose();
                 Create.Dispose();
-                MessageBox.Show("Waiting enemy!");
                 networker.Send(s);
-                
             }
             else
             {
@@ -558,26 +556,24 @@ namespace WindowsFormsApp1
             networker.enemyTank = tank1;
             networker._identification = 1;
         }
-        private void Joint_Click(object sender, EventArgs e)
+        private void Join_Click(object sender, EventArgs e)
         {
 
         }
         private void Invite_Click(object sender, EventArgs e)
         {
-
+            string s = Online.SelectedItems[0].Text;
+            networker.Send("invite;" + s);
         }
         private void Room_Click(object sender, EventArgs e)
         {
-            image.Dispose();
-            signal.Dispose();
             string s = Room.SelectedItems[0].Text;
-            Room.Dispose();
-            
             char[] b = { '.' };
             Int32 count = 100;
             String[] strList = s.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
             networker.Send("joint;" + strList[0]);
         }
+
         public void Form1_Paint(object sender, PaintEventArgs e)
         {
             back_ground.Draw(this,e);

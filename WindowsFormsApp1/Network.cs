@@ -57,6 +57,7 @@ namespace WindowsFormsApp1
             }
             catch 
             {
+                MessageBox.Show("Server bảo trì em êi!");
                 return false;
             }
         }
@@ -98,6 +99,8 @@ namespace WindowsFormsApp1
             int port = 11001;
             if (strList[0].Equals("loginok")==true )
             {
+                
+                
                 string IpAdress = GetLocalIP(NetworkInterfaceType.Ethernet);
                 while (true) {
                     try
@@ -121,12 +124,33 @@ namespace WindowsFormsApp1
                 });
                 foreach (string item in strList)
                 {
-                    if (item.Equals(strList[0]) == true) continue;
-                    form.Invoke((MethodInvoker)delegate
+                    if (item.Equals(strList[0]) != true && item.Equals(strList[strList.Length-1]) != true)
                     {
-                        form.Room.Items.Add(item);
-                    });
+                        form.Invoke((MethodInvoker)delegate
+                        {
+                            form.Room.Items.Add(item);
+                        });
+                    }
+                    
                 }
+                if (strList.Length>2)
+                {
+                    char[] delimiter = { '#' };
+                    String[] nameList = strList[2].Split(delimiter, 100, StringSplitOptions.RemoveEmptyEntries);
+                    
+                    if(nameList.Length<0 == false) 
+                    {
+                        foreach (string item in nameList)
+                        {
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                form.Online.Items.Add(item);
+                            });
+                        }
+                    }
+                    
+                }
+                
                 _client1.Listen(1);
                 Socket client_peer = _client1.Accept();
                 _client2 = client_peer;
@@ -140,6 +164,7 @@ namespace WindowsFormsApp1
                 form.Invoke((MethodInvoker)delegate
                 {
                     form.StartGame();
+                    form.Invite.Enabled = true;
                     form.Paint += new PaintEventHandler(form.Form1_Paint);
                 });
             }
@@ -153,6 +178,12 @@ namespace WindowsFormsApp1
                 form.Invoke((MethodInvoker)delegate
                 {
                     form.StartGame2();
+                    form.Room.Dispose();
+                    form.image.Dispose();
+                    form.signal.Dispose();
+                    form.Invite.Enabled = false;
+                    form.Join.Enabled = false;
+                    form.CreateRoom.Enabled = false;
                     form.Paint += new PaintEventHandler(form.Form1_Paint2);
                 });
                 
@@ -160,7 +191,13 @@ namespace WindowsFormsApp1
                 listenPeer.IsBackground = true;
                 listenPeer.Start(null);
             }
-
+            if (strList[0].Equals("enemysignal") == true)
+            {
+                form.Invoke((MethodInvoker)delegate
+                {
+                    form.Invite.Enabled = false;
+                });
+            }
             if (strList[0].Equals("registerok") == true)
             {
                 registorFrom.Invoke((MethodInvoker)delegate
@@ -236,6 +273,7 @@ namespace WindowsFormsApp1
             }
             catch 
             {
+                MessageBox.Show("Server bảo trì, vui lòng out game. Kết quả trận đấu là hòa.");
                 return;
             }
         }
@@ -253,6 +291,7 @@ namespace WindowsFormsApp1
             }
             catch
             {
+                MessageBox.Show("Đối thủ đã afk, xin mời bạn hạ gục !");
                 return;
             }
         }

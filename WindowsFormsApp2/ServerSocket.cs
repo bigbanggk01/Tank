@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Net;
@@ -10,9 +9,6 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Data.SqlClient;
 using System.Data;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Diagnostics;
-using System.Linq.Expressions;
 
 namespace WindowsFormsApp2
 {
@@ -23,6 +19,7 @@ namespace WindowsFormsApp2
         List<Player> _player;
         public const int _buffer = 1024;
         SqlConnection sqlcon = new SqlConnection(@"Data Source=DESKTOP-AB6F94G;Initial Catalog=TankDB;Integrated Security=True");
+        
         /// <summary>
         /// Run server 
         /// </summary>
@@ -49,6 +46,7 @@ namespace WindowsFormsApp2
                         Player player = new Player();
                         player.client = client;
                         _player.Add(player);
+                        player.client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
                         Thread receive = new Thread(Receive);
                         Check_Connection(player,receive);
                         receive.IsBackground = true;
@@ -135,7 +133,6 @@ namespace WindowsFormsApp2
             catch
             {
                 _player.Remove(player);
-                player.client.Close();
             }
         }
 
@@ -148,8 +145,11 @@ namespace WindowsFormsApp2
         {
             string query = "Select * from Usertable Where username = '" + strUser
                 + "' and passwo = '" + strPass + "'";
-            
-            sqlcon.Open();
+            if (sqlcon.State.Equals("Closed") == true) 
+            { 
+                sqlcon.Open(); 
+            }
+
             using (SqlDataAdapter sda = new SqlDataAdapter(query, sqlcon))
             {
                 DataTable dtbl = new DataTable();
@@ -373,17 +373,14 @@ namespace WindowsFormsApp2
                     }
                     foreach (Player item in _player)
                     {
+                        player.Room.isEmpty = 3;
                         if (item != player && item.Room == player.Room)
                         {
-
-                            player.Room.isEmpty = 3;
                             Send("enemydis;", item.client);
                         }
                     }
                 }
-            
             }
-
             using (SqlDataAdapter sda = new SqlDataAdapter())
             {
                 using (SqlCommand command = sqlcon.CreateCommand())
@@ -432,6 +429,23 @@ namespace WindowsFormsApp2
                         }
                     }
                     Send("buyok;", player.client);
+                    using (SqlCommand command = sqlcon.CreateCommand())
+                    {
+                        try
+                        {
+                            SqlDataAdapter sda = new SqlDataAdapter();
+                            command.CommandText = "update card set status = 1 where cardnum = @cardnum";
+                            command.Parameters.AddWithValue("@cardnum", cardnum);
+                            sda.UpdateCommand = command;
+                            sqlcon.Open();
+                            sda.UpdateCommand.ExecuteNonQuery();
+                            sqlcon.Close();
+                        }
+                        catch (Exception e)
+                        {
+                            MessageBox.Show(e.ToString());
+                        }
+                    }
                 }
             }
             
@@ -449,25 +463,26 @@ namespace WindowsFormsApp2
                 {
                     try
                     {
-                        if ((player.client.Poll(1, SelectMode.SelectRead) && player.client.Available == 0) == true)
+                        if (player.client != null)
                         {
-                            Handling_Disconnections(player);
-                            thread.Abort();
-                            break;
+                            if ((player.client.Poll(5000, SelectMode.SelectRead) && player.client.Available == 0) == true)
+                            {
+                                player.client = null;
+                                Handling_Disconnections(player);
+                                return;
+                            }
                         }
                     }
-                    catch(ThreadAbortException) { }
                     catch (Exception e)
                     {
                         MessageBox.Show(e.ToString());
-                        player.client.Close();
-                        _player.Remove(player);
-                        Thread.CurrentThread.Abort();
                         thread.Abort();
-                        break;
+                        Thread.CurrentThread.Abort();
+                        _player.Remove(player);
                     }
-                    
                 }
+
+
             });
             threadCheck.IsBackground = true;
             threadCheck.Start();

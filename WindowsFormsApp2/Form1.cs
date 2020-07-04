@@ -91,5 +91,10 @@ namespace WindowsFormsApp2
         {
             Application.Exit();
         }
+
+        private void Refresh_Click(object sender, EventArgs e)
+        {
+            LoadData();
+        }
     }
 }

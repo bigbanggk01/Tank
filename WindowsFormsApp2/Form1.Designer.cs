@@ -36,12 +36,13 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.Refresh = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(344, 391);
+            this.button1.Location = new System.Drawing.Point(344, 392);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(116, 35);
             this.button1.TabIndex = 0;
@@ -61,9 +62,9 @@
             // 
             // AddCard
             // 
-            this.AddCard.Location = new System.Drawing.Point(344, 28);
+            this.AddCard.Location = new System.Drawing.Point(344, 9);
             this.AddCard.Name = "AddCard";
-            this.AddCard.Size = new System.Drawing.Size(116, 69);
+            this.AddCard.Size = new System.Drawing.Size(116, 53);
             this.AddCard.TabIndex = 2;
             this.AddCard.Text = "AddGamePointCard";
             this.AddCard.UseVisualStyleBackColor = true;
@@ -113,11 +114,22 @@
             this.dataGridView1.Size = new System.Drawing.Size(445, 283);
             this.dataGridView1.TabIndex = 7;
             // 
+            // Refresh
+            // 
+            this.Refresh.Location = new System.Drawing.Point(344, 68);
+            this.Refresh.Name = "Refresh";
+            this.Refresh.Size = new System.Drawing.Size(116, 29);
+            this.Refresh.TabIndex = 8;
+            this.Refresh.Text = "Refresh";
+            this.Refresh.UseVisualStyleBackColor = true;
+            this.Refresh.Click += new System.EventHandler(this.Refresh_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(472, 482);
+            this.Controls.Add(this.Refresh);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -144,6 +156,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.Button Refresh;
     }
 }
 

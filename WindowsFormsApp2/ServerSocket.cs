@@ -126,9 +126,9 @@ namespace WindowsFormsApp2
                         Add_New_User(strList[1], strList[2], player);
                     }
 
-                    if (strList[0].Equals("invite") == true)
+                    if (strList[0].Equals("buy") == true)
                     {
-
+                        Buy_Response(strList[1], player);
                     }
                 }
             }
@@ -404,9 +404,38 @@ namespace WindowsFormsApp2
                     
                 }
             }
+        }
+        public void Buy_Response(string cardnum, Player player)
+        {
+            string query = "select * from card where cardnum = '" + cardnum + "' and status='0'";
+            
+            using(SqlDataAdapter adapter = new SqlDataAdapter(query, sqlcon))
+            {
+                DataTable dtbl = new DataTable();
+                adapter.Fill(dtbl);
+                if(dtbl.Rows.Count == 1)
+                {
+                    using(SqlCommand command = sqlcon.CreateCommand()) 
+                    {
+                        try {
+                            SqlDataAdapter sda = new SqlDataAdapter();
+                            command.CommandText = "update Usertable set tank = 1 where username = @username";
+                            command.Parameters.AddWithValue("@username", player.username);
+                            sda.UpdateCommand = command;
+                            sqlcon.Open();
+                            sda.UpdateCommand.ExecuteNonQuery();
+                            sqlcon.Close();
+                        }
+                        catch(Exception e)
+                        {
+                            MessageBox.Show(e.ToString());
+                        }
+                    }
+                    Send("buyok;", player.client);
+                }
+            }
             
         }
-
         /// <summary>
         /// Phát hiện ngắt kết nối
         /// </summary>
@@ -484,7 +513,6 @@ namespace WindowsFormsApp2
             bf.Serialize(ms, o);
             return ms.ToArray();
         }
-
         object Deserialize(byte[] data)
         {
             MemoryStream ms = new MemoryStream(data);

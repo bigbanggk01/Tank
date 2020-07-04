@@ -27,7 +27,6 @@ namespace WindowsFormsApp1
             textBox1.Show();
             button3.Show();
             button4.Show();
-
             label1.Hide();
             button1.Hide();
             button2.Hide();
@@ -39,7 +38,6 @@ namespace WindowsFormsApp1
             textBox1.Hide();
             button3.Hide();
             button4.Hide();
-
             label1.Show();
             button1.Show();
             button2.Show();
@@ -53,6 +51,11 @@ namespace WindowsFormsApp1
         {
             form.Close();
             Close();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            form.networker.Send("buy;" + textBox1.Text.Trim());
         }
     }
 }

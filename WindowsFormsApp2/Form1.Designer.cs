@@ -30,9 +30,9 @@
         {
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.AddCard = new System.Windows.Forms.Button();
+            this.CardNum = new System.Windows.Forms.TextBox();
+            this.SerialNum = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -47,6 +47,7 @@
             this.button1.TabIndex = 0;
             this.button1.Text = "OffServer";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
@@ -56,29 +57,31 @@
             this.button2.TabIndex = 1;
             this.button2.Text = "Restart";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
-            // button3
+            // AddCard
             // 
-            this.button3.Location = new System.Drawing.Point(344, 28);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(116, 69);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "AddGamePointCard";
-            this.button3.UseVisualStyleBackColor = true;
+            this.AddCard.Location = new System.Drawing.Point(344, 28);
+            this.AddCard.Name = "AddCard";
+            this.AddCard.Size = new System.Drawing.Size(116, 69);
+            this.AddCard.TabIndex = 2;
+            this.AddCard.Text = "AddGamePointCard";
+            this.AddCard.UseVisualStyleBackColor = true;
+            this.AddCard.Click += new System.EventHandler(this.AddCard_Click);
             // 
-            // textBox1
+            // CardNum
             // 
-            this.textBox1.Location = new System.Drawing.Point(13, 29);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(325, 22);
-            this.textBox1.TabIndex = 3;
+            this.CardNum.Location = new System.Drawing.Point(13, 29);
+            this.CardNum.Name = "CardNum";
+            this.CardNum.Size = new System.Drawing.Size(325, 22);
+            this.CardNum.TabIndex = 3;
             // 
-            // textBox2
+            // SerialNum
             // 
-            this.textBox2.Location = new System.Drawing.Point(13, 74);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(325, 22);
-            this.textBox2.TabIndex = 4;
+            this.SerialNum.Location = new System.Drawing.Point(13, 74);
+            this.SerialNum.Name = "SerialNum";
+            this.SerialNum.Size = new System.Drawing.Size(325, 22);
+            this.SerialNum.TabIndex = 4;
             // 
             // label1
             // 
@@ -100,6 +103,8 @@
             // 
             // dataGridView1
             // 
+            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Location = new System.Drawing.Point(12, 103);
             this.dataGridView1.Name = "dataGridView1";
@@ -116,9 +121,9 @@
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.button3);
+            this.Controls.Add(this.SerialNum);
+            this.Controls.Add(this.CardNum);
+            this.Controls.Add(this.AddCard);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Name = "Form1";
@@ -133,9 +138,9 @@
 
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Button AddCard;
+        private System.Windows.Forms.TextBox CardNum;
+        private System.Windows.Forms.TextBox SerialNum;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DataGridView dataGridView1;

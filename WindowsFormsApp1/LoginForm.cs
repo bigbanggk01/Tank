@@ -20,9 +20,6 @@ namespace WindowsFormsApp1
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            //string query = "Select * from Usertable Where username = '" + textBox1.Text.Trim()
-            //    + "' and passwo = '" + textBox2.Text.Trim()+"'";
-            //NetworkInterfaceType type = NetworkInterfaceType.Wireless80211;
             try
             {
                 NetworkInterfaceType type = NetworkInterfaceType.Ethernet;
@@ -42,7 +39,6 @@ namespace WindowsFormsApp1
         }
         private void LoginForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            form.networker.Stop();
             form.Invoke((MethodInvoker)delegate
             {
                 form.Close();
@@ -69,6 +65,14 @@ namespace WindowsFormsApp1
             rf.GetForm(form);
             form.networker.GetRegisterForm(rf);
             rf.Show();
+        }
+
+        private void LoginForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            //form.Invoke((MethodInvoker)delegate
+            //{
+            //    form.Close();
+            //});
         }
     }
 }

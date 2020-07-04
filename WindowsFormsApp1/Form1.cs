@@ -559,14 +559,10 @@ namespace WindowsFormsApp1
         private void Buy_Click(object sender, EventArgs e)
         {
             EndingForm2 end = new EndingForm2();
+            end.Get(this);
             end.button1_Click(sender,e);
             end.Show();
         }
-        //private void Invite_Click(object sender, EventArgs e)
-        //{
-        //    string s = Online.SelectedItems[0].Text;
-        //    networker.Send("invite;" + s);
-        //}
         private void Room_Click(object sender, EventArgs e)
         {
             string s = Room.SelectedItems[0].Text;

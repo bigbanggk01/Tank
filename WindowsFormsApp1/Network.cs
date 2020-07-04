@@ -225,6 +225,14 @@ namespace WindowsFormsApp1
                     });
                 }
             }
+            if (strList[0].Equals("buyok") == true)
+            {
+                form.Invoke((MethodInvoker)delegate
+                {
+                    form.CreateRoom.Enabled = true;
+                    form.Join.Enabled = true;
+                });
+            }
         }
 
         /// <summary>

@@ -97,6 +97,7 @@ namespace WindowsFormsApp1
             Int32 count = 100;
             String[] strList = s.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
             int port = 11001;
+            if (strList.Length<1) return;
             if (strList[0].Equals("loginok")==true )
             {
                 
@@ -164,7 +165,7 @@ namespace WindowsFormsApp1
                 form.Invoke((MethodInvoker)delegate
                 {
                     form.StartGame();
-                    form.Invite.Enabled = true;
+                    form.Buy.Enabled = true;
                     form.Paint += new PaintEventHandler(form.Form1_Paint);
                 });
             }
@@ -181,7 +182,6 @@ namespace WindowsFormsApp1
                     form.Room.Dispose();
                     form.image.Dispose();
                     form.signal.Dispose();
-                    form.Invite.Enabled = false;
                     form.Join.Enabled = false;
                     form.CreateRoom.Enabled = false;
                     form.Paint += new PaintEventHandler(form.Form1_Paint2);
@@ -195,8 +195,12 @@ namespace WindowsFormsApp1
             {
                 form.Invoke((MethodInvoker)delegate
                 {
-                    form.Invite.Enabled = false;
+                    form.Join.Enabled = false;
                 });
+            }
+            if (strList[0].Equals("enemydis") == true)
+            {
+                MessageBox.Show("Your enemy has left this game, you are winner");
             }
             if (strList[0].Equals("registerok") == true)
             {
@@ -209,6 +213,17 @@ namespace WindowsFormsApp1
             if(strList[0].Equals("register0ok") == true)
             {
                 MessageBox.Show("Tên đăng nhập đã tồn tại, vui lòng dùng tên khác.", "Can not register", MessageBoxButtons.OK, MessageBoxIcon.None);
+            }
+            if (strList[0].Equals("yourtank") == true)
+            {
+                if (strList[1].Equals("1") == false)
+                {
+                    form.Invoke((MethodInvoker)delegate
+                    {
+                        form.CreateRoom.Enabled = false;
+                        form.Join.Enabled = false;
+                    });
+                }
             }
         }
 
@@ -273,7 +288,6 @@ namespace WindowsFormsApp1
             }
             catch 
             {
-                MessageBox.Show("Server bảo trì, vui lòng out game. Kết quả trận đấu là hòa.");
                 return;
             }
         }
@@ -291,7 +305,6 @@ namespace WindowsFormsApp1
             }
             catch
             {
-                MessageBox.Show("Đối thủ đã afk, xin mời bạn hạ gục !");
                 return;
             }
         }

@@ -117,7 +117,7 @@
             this.Controls.Add(this.button1);
             this.Name = "EndingForm2";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "EndingForm2";
+            this.Text = "Top up";
             this.ResumeLayout(false);
             this.PerformLayout();
 

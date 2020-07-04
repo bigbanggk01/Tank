@@ -68,7 +68,7 @@ namespace WindowsFormsApp1
         Button SignOut;
         public Button CreateRoom;
         public Button Join;
-        public Button Invite;
+        public Button Buy;
         /// <summary>
         /// Các nút bấm
         /// </summary>
@@ -244,23 +244,23 @@ namespace WindowsFormsApp1
 
             Join = new Button();
             Join.Location = new Point(this.Width - 312, this.Height - 100);
-            Join.Text = "Joint room";
+            Join.Text = "Join room";
             Join.Size = new Size(150, 30);
             Join.TabStop = false;
             Join.Font = new Font("Lucida Console", 10);
             Join.Anchor = AnchorStyles.Bottom;
-            Join.Click += new System.EventHandler(this.Join_Click);
+            //Join.Click += new System.EventHandler(this.Join_Click);
             Join.FlatStyle = FlatStyle.Flat;
-            Invite = new Button();
-            Invite.Location = new Point(this.Width - 312, this.Height - 140);
-            Invite.Text = "Invite";
-            Invite.Size = new Size(150, 30);
-            Invite.TabStop = false;
-            Invite.Font = new Font("Lucida Console", 10);
-            Invite.Anchor = AnchorStyles.Bottom;
-            Invite.Click += new System.EventHandler(this.Invite_Click);
-            Invite.FlatStyle = FlatStyle.Flat;
-            Invite.Enabled = false;
+            Buy = new Button();
+            Buy.Location = new Point(this.Width - 312, this.Height - 140);
+            Buy.Text = "Top up";
+            Buy.Size = new Size(150, 30);
+            Buy.TabStop = false;
+            Buy.Font = new Font("Lucida Console", 10);
+            Buy.Anchor = AnchorStyles.Bottom;
+            Buy.Click += new System.EventHandler(this.Buy_Click);
+            Buy.FlatStyle = FlatStyle.Flat;
+            Buy.Enabled = true;
 
             CreateRoom.FlatStyle = FlatStyle.Flat;
             image = new PictureBox();
@@ -283,12 +283,12 @@ namespace WindowsFormsApp1
             button2.DisableSelect();
             CreateRoom.DisableSelect();
             Join.DisableSelect();
-            Invite.DisableSelect();
+            Buy.DisableSelect();
             signal.DisableSelect();
 
             this.Controls.Add(signal);
             this.Controls.Add(image);
-            this.Controls.Add(Invite);
+            this.Controls.Add(Buy);
             this.Controls.Add(Join);
             this.Controls.Add(SignOut);
             this.Controls.Add(ChatBox);
@@ -556,15 +556,17 @@ namespace WindowsFormsApp1
             networker.enemyTank = tank1;
             networker._identification = 1;
         }
-        private void Join_Click(object sender, EventArgs e)
+        private void Buy_Click(object sender, EventArgs e)
         {
-
+            EndingForm2 end = new EndingForm2();
+            end.button1_Click(sender,e);
+            end.Show();
         }
-        private void Invite_Click(object sender, EventArgs e)
-        {
-            string s = Online.SelectedItems[0].Text;
-            networker.Send("invite;" + s);
-        }
+        //private void Invite_Click(object sender, EventArgs e)
+        //{
+        //    string s = Online.SelectedItems[0].Text;
+        //    networker.Send("invite;" + s);
+        //}
         private void Room_Click(object sender, EventArgs e)
         {
             string s = Room.SelectedItems[0].Text;

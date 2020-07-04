@@ -12,6 +12,7 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Diagnostics;
+using System.Linq.Expressions;
 
 namespace WindowsFormsApp2
 {
@@ -147,6 +148,7 @@ namespace WindowsFormsApp2
         {
             string query = "Select * from Usertable Where username = '" + strUser
                 + "' and passwo = '" + strPass + "'";
+            
             sqlcon.Open();
             using (SqlDataAdapter sda = new SqlDataAdapter(query, sqlcon))
             {
@@ -155,6 +157,8 @@ namespace WindowsFormsApp2
                 if (dtbl.Rows.Count == 1)
                 {
                     player.username = strUser;
+                    DataRow[] rows = dtbl.Select();
+                    
                     if ((object)_currentData != null)
                     {
                         _player[_player.IndexOf(player)].ip = ipUser;
@@ -165,12 +169,12 @@ namespace WindowsFormsApp2
                             if (item.Room == null) continue;
                             if (item.key == true) 
                             {
-                                if (item.Room.isEmpty == true)
+                                if (item.Room.isEmpty == 1)
                                 {
                                     room += item.Room.name + "....................." + item.Room.title
                                         + ".................." + "Waiting enemy;";
                                 }
-                                else if (item.Room.isEmpty == false)
+                                else if (item.Room.isEmpty == 2)
                                 {
                                     room += item.Room.name + "....................." + item.Room.title
                                         + ".................." + "Full;";
@@ -180,6 +184,7 @@ namespace WindowsFormsApp2
                             onlineUser += item.username+"#";
                         }
                         Send("loginok;" + room+onlineUser, player.client);
+                        Send("yourtank;"+rows[0].ItemArray[3],player.client);
                     };
                 }
             }
@@ -223,7 +228,7 @@ namespace WindowsFormsApp2
             player.Room = new Room();
             player.Room.name = strRoom;
             player.Room.title = strTit;
-            player.Room.isEmpty = true;
+            player.Room.isEmpty = 1;
             player.key = true;
             Send("createok", player.client);
         }
@@ -242,11 +247,11 @@ namespace WindowsFormsApp2
                 if (item.Room == null) continue;
                 if (item.Room.name.Equals(str) == true)
                 {
-                    if (item.Room.isEmpty == true) 
+                    if (item.Room.isEmpty == 1) 
                     {
+                        item.Room.isEmpty = 2;
                         player.Room = new Room();
                         player.Room = item.Room;
-                        item.Room.isEmpty = false;
                         response += "jointok;" + item.ip + ";" + item.port;
                         Send(response, player.client);
                         Send("enemysignal;", item.client);
@@ -303,9 +308,9 @@ namespace WindowsFormsApp2
                             sda.InsertCommand.ExecuteNonQuery();
                             sqlcon.Close();
                         }
-                        catch(Exception e)
+                        catch
                         {
-                            MessageBox.Show(e.ToString());
+                            return;
                         }  
                     }
                 }
@@ -350,6 +355,35 @@ namespace WindowsFormsApp2
         /// </summary>
         private void Handling_Disconnections(Player player)
         {
+            if(player.Room!= null)
+            {
+                if (player.Room.isEmpty == 2)
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter())
+                    {
+                        using (SqlCommand command = sqlcon.CreateCommand())
+                        {
+                            command.CommandText = "update Usertable set tank = 0 where username = @username";
+                            command.Parameters.AddWithValue("@username", player.username);
+                            sda.UpdateCommand = command;
+                            sqlcon.Open();
+                            sda.UpdateCommand.ExecuteNonQuery();
+                            sqlcon.Close();
+                        }
+                    }
+                    foreach (Player item in _player)
+                    {
+                        if (item != player && item.Room == player.Room)
+                        {
+
+                            player.Room.isEmpty = 3;
+                            Send("enemydis;", item.client);
+                        }
+                    }
+                }
+            
+            }
+
             using (SqlDataAdapter sda = new SqlDataAdapter())
             {
                 using (SqlCommand command = sqlcon.CreateCommand())
@@ -363,13 +397,14 @@ namespace WindowsFormsApp2
                         sda.UpdateCommand.ExecuteNonQuery();
                         sqlcon.Close();
                     }
-                    catch(Exception e)
+                    catch
                     {
-                        MessageBox.Show(e.ToString());
+                        return;
                     }
                     
                 }
             }
+            
         }
 
         /// <summary>
@@ -383,12 +418,26 @@ namespace WindowsFormsApp2
             {
                 while (true)
                 {
-                    if ((player.client.Poll(5, SelectMode.SelectRead) && player.client.Available == 0) == true)
+                    try
                     {
-                        Handling_Disconnections(player);
+                        if ((player.client.Poll(1, SelectMode.SelectRead) && player.client.Available == 0) == true)
+                        {
+                            Handling_Disconnections(player);
+                            thread.Abort();
+                            break;
+                        }
+                    }
+                    catch(ThreadAbortException) { }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(e.ToString());
+                        player.client.Close();
+                        _player.Remove(player);
+                        Thread.CurrentThread.Abort();
                         thread.Abort();
                         break;
                     }
+                    
                 }
             });
             threadCheck.IsBackground = true;
@@ -474,6 +523,6 @@ namespace WindowsFormsApp2
     {
         public string name;
         public string title;
-        public bool isEmpty;
+        public int isEmpty;
     }
 }

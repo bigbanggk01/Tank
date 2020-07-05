@@ -7,6 +7,8 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using System.Net.NetworkInformation;
+using System.Drawing;
+using System.Linq.Expressions;
 
 namespace WindowsFormsApp1
 {
@@ -27,22 +29,27 @@ namespace WindowsFormsApp1
         public List<string> _ipList = new List<string>();
         public List<string> _roomList = new List<string>();
         RegistorForm registorFrom;
+
         public void GetRegisterForm(RegistorForm rf)
         {
             registorFrom = rf;
         }
+
         public void GetForm(Form1 f)
         {
             form = f;
         }
+
         public Tank GetTank(Tank t)
         {
             return  t;
         }
+
         public void GetLogin(LoginForm lg)
         {
             LoginForm = lg;
         }
+
         public bool Start()
         {
             _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -61,10 +68,12 @@ namespace WindowsFormsApp1
                 return false;
             }
         }
+
         public void Stop()
         {
             _client.Close();
         }
+
         public void Receive()
         {
             _currentData = "";
@@ -89,6 +98,7 @@ namespace WindowsFormsApp1
                 
             }
         }
+
         private void Execute(object data)
         {
             _client1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -100,23 +110,6 @@ namespace WindowsFormsApp1
             if (strList.Length<1) return;
             if (strList[0].Equals("loginok")==true )
             {
-                
-                
-                string IpAdress = GetLocalIP(NetworkInterfaceType.Ethernet);
-                while (true) {
-                    try
-                    {
-                        IPEndPoint ip = new IPEndPoint(IPAddress.Parse(IpAdress), port);
-                        _client1.Bind(ip);
-                        break;
-                    }
-                    catch
-                    {
-                    }
-                    port++;
-                }
-
-                Send("binded;" + port);
                 form.Invoke((MethodInvoker)delegate
                 {
                     form.WindowState = FormWindowState.Maximized;
@@ -137,7 +130,7 @@ namespace WindowsFormsApp1
                 if (strList.Length>2)
                 {
                     char[] delimiter = { '#' };
-                    String[] nameList = strList[2].Split(delimiter, 100, StringSplitOptions.RemoveEmptyEntries);
+                    String[] nameList = strList[strList.Length-1].Split(delimiter, 100, StringSplitOptions.RemoveEmptyEntries);
                     
                     if(nameList.Length<0 == false) 
                     {
@@ -149,9 +142,37 @@ namespace WindowsFormsApp1
                             });
                         }
                     }
-                    
                 }
-                
+            }
+
+            if (strList[0].Equals("login0ok") == true)
+            {
+                MessageBox.Show("Có người khác đang đăng nhập");
+            }
+
+            if (strList[0].Equals("createok") == true)
+            {
+                string IpAdress = GetLocalIP(NetworkInterfaceType.Ethernet);
+                while (true)
+                {
+                    try
+                    {
+                        IPEndPoint ip = new IPEndPoint(IPAddress.Parse(IpAdress), port);
+                        _client1.Bind(ip);
+                        break;
+                    }
+                    catch
+                    {
+                    }
+                    port++;
+                }
+                Send("binded;" + port);
+                form.Invoke((MethodInvoker)delegate
+                {
+                    form.StartGame();
+                    form.Buy.Enabled = true;
+                    form.Paint += new PaintEventHandler(form.Form1_Paint);
+                });
                 _client1.Listen(1);
                 Socket client_peer = _client1.Accept();
                 _client2 = client_peer;
@@ -160,17 +181,7 @@ namespace WindowsFormsApp1
                 listenPeer.Start(client_peer);
             }
 
-            if (strList[0].Equals("createok") == true)
-            {
-                form.Invoke((MethodInvoker)delegate
-                {
-                    form.StartGame();
-                    form.Buy.Enabled = true;
-                    form.Paint += new PaintEventHandler(form.Form1_Paint);
-                });
-            }
-
-            if (strList[0].Equals("jointok") == true)
+            if (strList[0].Equals("joinok") == true)
             {
                 IPEndPoint ip = new IPEndPoint(IPAddress.Parse(strList[1]), int.Parse(strList[2]));
                 _client1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -182,7 +193,7 @@ namespace WindowsFormsApp1
                     form.Room.Dispose();
                     form.image.Dispose();
                     form.signal.Dispose();
-                    form.Join.Enabled = false;
+                    form.Back.Enabled = false;
                     form.CreateRoom.Enabled = false;
                     form.Paint += new PaintEventHandler(form.Form1_Paint2);
                 });
@@ -195,7 +206,7 @@ namespace WindowsFormsApp1
             {
                 form.Invoke((MethodInvoker)delegate
                 {
-                    form.Join.Enabled = false;
+                    form.Back.Enabled = false;
                 });
             }
             if (strList[0].Equals("enemydis") == true)
@@ -221,8 +232,12 @@ namespace WindowsFormsApp1
                     form.Invoke((MethodInvoker)delegate
                     {
                         form.CreateRoom.Enabled = false;
-                        form.Join.Enabled = false;
                     });
+                    form.isDead = true;
+                }
+                if (strList[1].Equals("1") == true)
+                {
+                    form.isDead = false;
                 }
             }
             if (strList[0].Equals("buyok") == true)
@@ -230,7 +245,25 @@ namespace WindowsFormsApp1
                 form.Invoke((MethodInvoker)delegate
                 {
                     form.CreateRoom.Enabled = true;
-                    form.Join.Enabled = true;
+                });
+            }
+            if (strList[0].Equals("playagainok"))
+            {
+                form.Invoke((MethodInvoker)delegate
+                {
+                    foreach (string item in strList)
+                    {
+                        if (item.Equals(strList[0]) != true && item.Equals(strList[strList.Length - 1]) != true)
+                        {
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                form.Room.Items.Add(item);
+                            });
+                        }
+
+                    }
+                    form.Handle_Back_Click();
+                    form.CreateRoom.Enabled = true;
                 });
             }
         }
@@ -276,7 +309,6 @@ namespace WindowsFormsApp1
                             form.EnemyChat_Show(strList[1]);
                         });
                     }
-
                 }
             }
             catch

@@ -23,13 +23,7 @@ namespace WindowsFormsApp1
 
         public void button1_Click(object sender, EventArgs e)
         {
-            label2.Show();
-            textBox1.Show();
-            button3.Show();
-            button4.Show();
-            label1.Hide();
-            button1.Hide();
-            button2.Hide();
+            Application.Restart();
         }
 
         public void button3_Click(object sender, EventArgs e)
@@ -49,8 +43,7 @@ namespace WindowsFormsApp1
         }
         private void button2_Click(object sender, EventArgs e)
         {
-            form.Close();
-            Close();
+            Application.Exit();
         }
 
         private void button4_Click(object sender, EventArgs e)

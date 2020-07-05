@@ -4,6 +4,8 @@ using System.Windows.Forms;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Threading;
+using System.Diagnostics.Eventing.Reader;
+
 namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
@@ -67,8 +69,9 @@ namespace WindowsFormsApp1
         public PictureBox image;
         Button SignOut;
         public Button CreateRoom;
-        public Button Join;
+        public Button Back;
         public Button Buy;
+        public bool isDead;
         /// <summary>
         /// Các nút bấm
         /// </summary>
@@ -242,15 +245,16 @@ namespace WindowsFormsApp1
             CreateRoom.Click += new System.EventHandler(this.CreateRoom_Click);
             CreateRoom.FlatStyle = FlatStyle.Flat;
 
-            Join = new Button();
-            Join.Location = new Point(this.Width - 312, this.Height - 100);
-            Join.Text = "Join room";
-            Join.Size = new Size(150, 30);
-            Join.TabStop = false;
-            Join.Font = new Font("Lucida Console", 10);
-            Join.Anchor = AnchorStyles.Bottom;
-            //Join.Click += new System.EventHandler(this.Join_Click);
-            Join.FlatStyle = FlatStyle.Flat;
+            Back = new Button();
+            Back.Location = new Point(this.Width - 312, this.Height - 100);
+            Back.Text = "Back";
+            Back.Size = new Size(150, 30);
+            Back.TabStop = false;
+            Back.Font = new Font("Lucida Console", 10);
+            Back.Anchor = AnchorStyles.Bottom;
+            Back.Click += new System.EventHandler(this.Back_Click);
+            Back.FlatStyle = FlatStyle.Flat;
+
             Buy = new Button();
             Buy.Location = new Point(this.Width - 312, this.Height - 140);
             Buy.Text = "Top up";
@@ -282,14 +286,14 @@ namespace WindowsFormsApp1
             SignOut.DisableSelect();
             button2.DisableSelect();
             CreateRoom.DisableSelect();
-            Join.DisableSelect();
+            Back.DisableSelect();
             Buy.DisableSelect();
             signal.DisableSelect();
 
             this.Controls.Add(signal);
             this.Controls.Add(image);
             this.Controls.Add(Buy);
-            this.Controls.Add(Join);
+            this.Controls.Add(Back);
             this.Controls.Add(SignOut);
             this.Controls.Add(ChatBox);
             this.Controls.Add(Online);
@@ -297,7 +301,18 @@ namespace WindowsFormsApp1
             this.Controls.Add(Room);
             this.ShowInTaskbar = false;
             this.Hide();
-        }    
+        }
+
+        private void Back_Click(object sender, EventArgs e)
+        {
+            networker.Send("playagain;");
+            Graphics g = this.CreateGraphics();
+            SolidBrush p= new SolidBrush(Color.White);
+            g.FillRectangle(p, 0, 0, 1600, 900);
+            g.Dispose();
+            p.Dispose();
+        }
+
         public void GetForm(LoginForm lf)
         {
             LoginForm = lf;
@@ -453,8 +468,8 @@ namespace WindowsFormsApp1
         private void CreateRoom_Click(object sender, EventArgs e)
         {
             Room.Hide();
-            image.Dispose();
-            signal.Dispose();
+            image.Hide();
+            signal.Hide();
             label1 = new Label();
             label1.Font = new System.Drawing.Font("Lucida Console", 15);
             label1.Location = new System.Drawing.Point(10, 100);
@@ -504,6 +519,12 @@ namespace WindowsFormsApp1
             { 
                 networker.Send("create;"+RoomName.Text+";"+Title.Text); 
             }            
+        }
+        public void Handle_Back_Click()
+        {
+            Room.Show();
+            image.Show();
+            signal.Show();
         }
         private void Create_Click(object sender, EventArgs e)
         {
@@ -565,11 +586,12 @@ namespace WindowsFormsApp1
         }
         private void Room_Click(object sender, EventArgs e)
         {
+            if (isDead == true) return;
             string s = Room.SelectedItems[0].Text;
             char[] b = { '.' };
             Int32 count = 100;
             String[] strList = s.Split(b, count, StringSplitOptions.RemoveEmptyEntries);
-            networker.Send("joint;" + strList[0]);
+            networker.Send("join;" + strList[0]);
         }
 
         public void Form1_Paint(object sender, PaintEventArgs e)
@@ -602,17 +624,12 @@ namespace WindowsFormsApp1
     {
         public ListViewNF()
         {
-            //Activate double buffering
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-
-            //Enable the OnNotifyMessage event so we get a chance to filter out 
-            // Windows messages before they get to the form's WndProc
             this.SetStyle(ControlStyles.EnableNotifyMessage, true);
         }
 
         protected override void OnNotifyMessage(Message m)
         {
-            //Filter out the WM_ERASEBKGND message
             if (m.Msg != 0x14)
             {
                 base.OnNotifyMessage(m);

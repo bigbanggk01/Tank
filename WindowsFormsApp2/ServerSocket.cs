@@ -35,6 +35,7 @@ namespace WindowsFormsApp2
                 _server.Bind(iPEndPoint);
             }
             catch { }
+
             Thread listen = new Thread(() =>
             {
                 try
@@ -55,6 +56,7 @@ namespace WindowsFormsApp2
                 }
                 catch
                 {
+
                 }
             });
             listen.IsBackground = true;
@@ -109,7 +111,7 @@ namespace WindowsFormsApp2
                         Store_Player_Port(int.Parse(strList[1]), player);
                     }
 
-                    if (strList[0].Equals("joint") == true)
+                    if (strList[0].Equals("join") == true)
                     {
                         Response_Client_Join_Event(strList[1], player);
                     }
@@ -128,12 +130,94 @@ namespace WindowsFormsApp2
                     {
                         Buy_Response(strList[1], player);
                     }
+                    if (strList[0].Equals("playagain"))
+                    {
+                        Room_Refresh(player);
+                        Send_Room_List(player);
+                    }
                 }
             }
             catch
             {
                 _player.Remove(player);
             }
+        }
+
+
+        private void Send_Room_List(Player player)
+        {
+
+            string query = "Select * from Usertable Where username = '" + player.username
+                + "'";
+            if (sqlcon.State.Equals("Closed") == true)
+            {
+                sqlcon.Open();
+            }
+
+            using (SqlDataAdapter sda = new SqlDataAdapter(query, sqlcon))
+            {
+                DataTable dtbl = new DataTable();
+                sda.Fill(dtbl);
+                if (dtbl.Rows.Count == 1)
+                {
+                    DataRow[] rows = dtbl.Select();
+
+                    if ((object)_currentData != null)
+                    {
+                        string room = "";
+                        string onlineUser = "";
+                        foreach (Player item in _player)
+                        {
+                            if (item.Room == null) continue;
+                            if (item.key == true)
+                            {
+                                if (item.Room.isEmpty == 1)
+                                {
+                                    room += item.Room.name + "....................." + item.Room.title
+                                        + ".................." + "Waiting enemy;";
+                                }
+                                else if (item.Room.isEmpty == 2)
+                                {
+                                    room += item.Room.name + "....................." + item.Room.title
+                                        + ".................." + "Full;";
+                                }
+                            }
+                            onlineUser += item.username + "#";
+                        }
+                        Send("playagainok;" +room +onlineUser ,player.client);
+                        Send("yourtank;" + rows[0].ItemArray[3], player.client);
+                    };
+                }
+            }
+            sqlcon.Close();
+           
+        }
+
+        private void Room_Refresh(Player player)
+        {
+            if (player.key == true) 
+            { 
+                player.Room.isEmpty = 1;
+                foreach (Player item in _player)
+                {
+                    if (item.Room == player.Room)
+                    {
+                        item.Room = null;
+                    }
+                }
+            }
+            if(player.key == false)
+            {
+                foreach (Player item in _player)
+                {
+                    if (item.Room == player.Room)
+                    {
+                        item.Room.isEmpty = 1;
+                    }
+                }
+                player.Room = null;
+            }
+            
         }
 
         /// <summary>
@@ -144,7 +228,7 @@ namespace WindowsFormsApp2
         private void Make_Player_Online(string strUser,string strPass,string ipUser,Player player) 
         {
             string query = "Select * from Usertable Where username = '" + strUser
-                + "' and passwo = '" + strPass + "'";
+                + "' and passwo = '" + strPass + "'and status = '0'";
             if (sqlcon.State.Equals("Closed") == true) 
             { 
                 sqlcon.Open(); 
@@ -154,6 +238,11 @@ namespace WindowsFormsApp2
             {
                 DataTable dtbl = new DataTable();
                 sda.Fill(dtbl);
+                if(dtbl.Rows.Count == 0)
+                {
+                    sqlcon.Close();
+                    Send("login0ok;", player.client);
+                }
                 if (dtbl.Rows.Count == 1)
                 {
                     player.username = strUser;
@@ -181,7 +270,6 @@ namespace WindowsFormsApp2
                                 }
                             }
                             
-                            onlineUser += item.username+"#";
                         }
                         Send("loginok;" + room+onlineUser, player.client);
                         Send("yourtank;"+rows[0].ItemArray[3],player.client);
@@ -252,20 +340,21 @@ namespace WindowsFormsApp2
                         item.Room.isEmpty = 2;
                         player.Room = new Room();
                         player.Room = item.Room;
-                        response += "jointok;" + item.ip + ";" + item.port;
+                        response += "joinok;" + item.ip + ";" + item.port;
                         Send(response, player.client);
                         Send("enemysignal;", item.client);
                         return;
                     }
                     else
                     {
-                        response += "joint0ok";
+                        response += "join0ok";
                         return;
                     }
                 }
                 i++;
             }
         }
+
 
         /// <summary>
         /// Đăng ký tài khoản
@@ -459,7 +548,7 @@ namespace WindowsFormsApp2
         {
             Thread threadCheck = new Thread(() =>
             {
-                while (true)
+                while(true)
                 {
                     try
                     {
@@ -481,8 +570,6 @@ namespace WindowsFormsApp2
                         _player.Remove(player);
                     }
                 }
-
-
             });
             threadCheck.IsBackground = true;
             threadCheck.Start();

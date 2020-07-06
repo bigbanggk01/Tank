@@ -581,7 +581,7 @@ namespace WindowsFormsApp1
         {
             EndingForm2 end = new EndingForm2();
             end.Get(this);
-            end.button1_Click(sender,e);
+            end.Buy_Show();
             end.Show();
         }
         private void Room_Click(object sender, EventArgs e)

@@ -416,6 +416,7 @@ namespace WindowsFormsApp2
         {
             if (result.Equals("lose") == true) 
             {
+                player.Room.isEmpty = 3;
                 try 
                 {
                     using (SqlDataAdapter sda = new SqlDataAdapter())

@@ -118,7 +118,7 @@ namespace WindowsFormsApp1
                 });
                 foreach (string item in strList)
                 {
-                    if (item.Equals(strList[0]) != true && item.Equals(strList[strList.Length-1]) != true)
+                    if (item.Equals(strList[0]) != true )
                     {
                         form.Invoke((MethodInvoker)delegate
                         {
@@ -132,7 +132,7 @@ namespace WindowsFormsApp1
                     char[] delimiter = { '#' };
                     String[] nameList = strList[strList.Length-1].Split(delimiter, 100, StringSplitOptions.RemoveEmptyEntries);
                     
-                    if(nameList.Length<0 == false) 
+                    if(nameList.Length<0 == false ) 
                     {
                         foreach (string item in nameList)
                         {
@@ -245,6 +245,7 @@ namespace WindowsFormsApp1
                 form.Invoke((MethodInvoker)delegate
                 {
                     form.CreateRoom.Enabled = true;
+                    form.isDead = false;
                 });
             }
             if (strList[0].Equals("playagainok"))

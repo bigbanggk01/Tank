@@ -28,24 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
+            this.angainBtn = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.button4 = new System.Windows.Forms.Button();
+            this.buyBtn = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // button1
+            // angainBtn
             // 
-            this.button1.Location = new System.Drawing.Point(12, 120);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(180, 28);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Play again";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.angainBtn.Location = new System.Drawing.Point(12, 120);
+            this.angainBtn.Name = "angainBtn";
+            this.angainBtn.Size = new System.Drawing.Size(180, 28);
+            this.angainBtn.TabIndex = 0;
+            this.angainBtn.Text = "Play again";
+            this.angainBtn.UseVisualStyleBackColor = true;
+            this.angainBtn.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
@@ -84,15 +84,15 @@
             this.label2.TabIndex = 5;
             this.label2.Text = "Card number";
             // 
-            // button4
+            // buyBtn
             // 
-            this.button4.Location = new System.Drawing.Point(115, 82);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(93, 31);
-            this.button4.TabIndex = 6;
-            this.button4.Text = "Buy now";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.buyBtn.Location = new System.Drawing.Point(115, 82);
+            this.buyBtn.Name = "buyBtn";
+            this.buyBtn.Size = new System.Drawing.Size(93, 31);
+            this.buyBtn.TabIndex = 6;
+            this.buyBtn.Text = "Buy now";
+            this.buyBtn.UseVisualStyleBackColor = true;
+            this.buyBtn.Click += new System.EventHandler(this.button4_Click);
             // 
             // button3
             // 
@@ -110,12 +110,12 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(348, 167);
             this.Controls.Add(this.button3);
-            this.Controls.Add(this.button4);
+            this.Controls.Add(this.buyBtn);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.angainBtn);
             this.Name = "EndingForm2";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Top up";
@@ -126,12 +126,12 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button angainBtn;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button buyBtn;
         private System.Windows.Forms.Button button3;
     }
 }

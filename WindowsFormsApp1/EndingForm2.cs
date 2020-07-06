@@ -18,12 +18,13 @@ namespace WindowsFormsApp1
             label2.Hide();
             textBox1.Hide();
             button3.Hide();
-            button4.Hide();
+            buyBtn.Hide();
         }
 
         public void button1_Click(object sender, EventArgs e)
         {
             Application.Restart();
+            Environment.Exit(0);
         }
 
         public void button3_Click(object sender, EventArgs e)
@@ -31,11 +32,23 @@ namespace WindowsFormsApp1
             label2.Hide();
             textBox1.Hide();
             button3.Hide();
-            button4.Hide();
+            buyBtn.Hide();
             label1.Show();
-            button1.Show();
+            angainBtn.Show();
             button2.Show();
         }
+
+        public void Buy_Show()
+        {
+            label2.Show();
+            textBox1.Show();
+            button3.Show();
+            buyBtn.Show();
+            label1.Hide();
+            angainBtn.Hide();
+            button2.Hide();
+        }
+
         Form1 form;
         public void Get(Form1 f)
         {
